@@ -2,10 +2,11 @@
 Imports Szunyi.BLAST.Enums
 Imports org.mariuszgromada.math.mxparser
 Imports System.Text.RegularExpressions
+Imports Szunyi.Math
 
 Public Class MathEvalution
 
-    Private clonedAndFilteredBlastSearchRecords As List(Of BlastSearchRecord)
+    Public clonedAndFilteredBlastSearchRecords As List(Of BlastSearchRecord)
     Private extHsps As List(Of Szunyi.BLAST.extHSP)
     Public Sub New()
 
@@ -64,7 +65,7 @@ Public Class MathEvalution
             ToolStrip4.Items.Add(t)
         Next
 
-        Dim s = Split("Load,Save,Ok,Cancel,Test", ",")
+        Dim s = Split("Load,Save,Maintain True,Maintain False,Cancel,Test", ",")
         For Each s1 In s
             Dim t As New ToolStripButton
             t.Text = s1
@@ -89,7 +90,7 @@ Public Class MathEvalution
 
 
     Sub FileDialog(sender As ToolStripButton, e As EventArgs)
-        Dim Res As New List(Of Double)
+
         Select Case sender.Text
             Case "Load"
                 Dim File = Szunyi.IO.Pick_Up.File(Szunyi.IO.File_Extensions.Filter)
@@ -104,37 +105,82 @@ Public Class MathEvalution
             Case "Cancel"
                 Me.DialogResult = DialogResult.Cancel
                 Me.Close()
-            Case "OK"
+            Case "Maintain True"
+                Dim Arguments = GetArguments(1000)
+                Dim Index As Integer = 0
+                For Each Item In Calculate(Arguments)
+                    If Item = 0 Then
+                        Me.clonedAndFilteredBlastSearchRecords(extHsps(Index).RecordID).Hits(extHsps(Index).HitID).Hsps(extHsps(Index).HSPID) = Nothing
+                    End If
+                    Index += 1
+                Next
+                Me.clonedAndFilteredBlastSearchRecords = Szunyi.BLAST.Filter.HSP.Clear(Me.clonedAndFilteredBlastSearchRecords)
+                Me.DialogResult = DialogResult.OK
+                Me.Close()
+            Case "Maintain False"
+                Dim Arguments = GetArguments(1000)
+                Dim Index As Integer = 0
+                For Each Item In Calculate(Arguments)
+                    If Item = 1 Then
+                        Me.clonedAndFilteredBlastSearchRecords(extHsps(Index).RecordID).Hits(extHsps(Index).HitID).Hsps(extHsps(Index).HSPID) = Nothing
+                    End If
+                    Index += 1
+                Next
+                Me.clonedAndFilteredBlastSearchRecords = Szunyi.BLAST.Filter.HSP.Clear(Me.clonedAndFilteredBlastSearchRecords)
                 Me.DialogResult = DialogResult.OK
                 Me.Close()
             Case "Test"
-                Dim tmp = RichTextBox1.Text.Replace("(", "( ").Replace(")", ") ")
-                Dim s = Split(tmp, " ")
-                For Each M In Get_Matches_Aggregates()
-                    Dim kj444 As Int16 = 54
-                Next
-                Dim x As New Expression(Szunyi.Common.Text.General.GetText(s, " "))
-                Dim arguments = Szunyi.Math.mxparser.Get_Blast_Arguments(s)
-                For Each arg In arguments
-                    arg.Value.Value = Szunyi.BLAST.extHSP.Get_Values_By_Prop_Name(extHsps, arg.Key)
-                    x.addArguments(arg.Value.Arg)
-                Next
+                Dim Arguments = GetArguments(1000)
+                Dim Res = Calculate(Arguments).ToList
 
-
-                Dim t = x.calculate
-
-                For i1 = 0 To arguments.First.Value.Value.Count - 1
-                    For Each arg In arguments
-                        x.setArgumentValue(arg.Key, arg.Value.Value(i1))
-                    Next
-                    Res.Add(x.calculate)
-                Next
-
-                Dim kj As Int16 = 54
-
+                Dim kj = "True:" & (From x4 In Res Where x4 = 1).Count & vbCrLf & "False:" & (From x4 In Res Where x4 = 0).Count
+                MsgBox(kj)
         End Select
 
     End Sub
+
+    Private Iterator Function Calculate(arguments As Dictionary(Of String, Own_Argument)) As IEnumerable(Of Double)
+        Dim tmp = RichTextBox1.Text.Replace("(", "( ").Replace(")", ") ")
+        Dim s = Split(tmp, " ")
+        Dim txt = Szunyi.Common.Text.General.GetText(s, " ").Trim()
+        Dim x As New Expression(txt)
+        For Each a In arguments
+            x.addArguments(a.Value.Arg)
+        Next
+        For i1 = 0 To arguments.First.Value.Value.Count - 1
+            For Each arg In arguments
+                x.setArgumentValue(arg.Key, arg.Value.Value(i1))
+
+            Next
+            Yield x.calculate
+
+        Next
+    End Function
+
+    Private Function GetArguments(Optional MaxNof = -1) As Dictionary(Of String, Szunyi.Math.Own_Argument)
+        Dim tmp = RichTextBox1.Text.Replace("(", "( ").Replace(")", ") ")
+
+        Dim Index As Integer = 0
+        Dim Arguments As New Dictionary(Of String, Szunyi.Math.Own_Argument)
+
+        For Each M In Get_Matches_Aggregates()
+            Dim Name As String = "aa_" & Index
+            tmp = tmp.Replace(M.Value, Name)
+            Index += 1
+            Dim a As New Szunyi.Math.Own_Argument(Name)
+            a.Value = Szunyi.BLAST.extHSP.Get_Values_By_Aggregate_Name(extHsps, M.Value, MaxNof)
+            Arguments.Add(Name, a)
+        Next
+        Dim s = Split(tmp, " ")
+
+        Dim arguments2 = Szunyi.Math.mxparser.Get_Blast_Arguments(s)
+        For Each arg In arguments2
+            arg.Value.Value = Szunyi.BLAST.extHSP.Get_Values_By_Prop_Name(extHsps, arg.Key, MaxNof)
+            Arguments.Add(arg.Key, arg.Value)
+        Next
+        Return Arguments
+
+    End Function
     Sub Aggregates(sender As ToolStripButton, e As EventArgs)
         SetText(sender.Text)
         RichTextBox1.Update()
@@ -146,7 +192,7 @@ Public Class MathEvalution
     Sub Math_Op(sender As ToolStripButton, e As EventArgs)
         Dim x As Szunyi.Math.LogicalOperator = sender.Tag
 
-        RichTextBox1.Text = RichTextBox1.Text & x.Symbol
+        SetText(" " & x.Symbol & "  ")
 
     End Sub
     Sub Agg_Op(sender As ToolStripButton, e As EventArgs)
@@ -180,13 +226,13 @@ Public Class MathEvalution
         For Each e In Szunyi.Common.RegExp.Get_Matches(RichTextBox1.Text, "Average\[[A-Z\s_]{1,45}\]")
             Yield e
         Next
-        For Each e In Szunyi.Common.RegExp.Get_Matches(RichTextBox1.Text, "Average\[[A-Z\s_]{1,45}\]")
+        For Each e In Szunyi.Common.RegExp.Get_Matches(RichTextBox1.Text, "Sum\[[A-Z\s_]{1,45}\]")
             Yield e
         Next
-        For Each e In Szunyi.Common.RegExp.Get_Matches(RichTextBox1.Text, "Average\[[A-Z\s_]{1,45}\]")
+        For Each e In Szunyi.Common.RegExp.Get_Matches(RichTextBox1.Text, "Minimum value\[[A-Z\s_]{1,45}\]")
             Yield e
         Next
-        For Each e In Szunyi.Common.RegExp.Get_Matches(RichTextBox1.Text, "Average\[[A-Z\s_]{1,45}\]")
+        For Each e In Szunyi.Common.RegExp.Get_Matches(RichTextBox1.Text, "Maximum value\[[A-Z\s_]{1,45}\]")
             Yield e
         Next
 

@@ -45,6 +45,7 @@ Partial Class Form1
         Me.OneByOneToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ProteinToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.NucleotideToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.FromGenBankToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.SetBlastPathsToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.SetExecutableFolderToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.SetWorkingDirectoryToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
@@ -63,12 +64,13 @@ Partial Class Form1
         Me.HitsToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.RecordsToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ResetToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.SplitContainer1 = New System.Windows.Forms.SplitContainer()
-        Me.dgv1 = New System.Windows.Forms.DataGridView()
         Me.LoadToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.Tblb1 = New Szunyi.IO.tblb()
-        Me.Tblb2 = New Szunyi.IO.tblb()
         Me.MathToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.SplitContainer1 = New System.Windows.Forms.SplitContainer()
+        Me.Tblb1 = New Szunyi.IO.tblb()
+        Me.dgv1 = New System.Windows.Forms.DataGridView()
+        Me.Tblb2 = New Szunyi.IO.tblb()
+        Me.FromMixedGenBanksToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.MenuStrip1.SuspendLayout()
         CType(Me.SplitContainer1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SplitContainer1.Panel1.SuspendLayout()
@@ -197,7 +199,7 @@ Partial Class Form1
         '
         'CreateDatabaseToolStripMenuItem
         '
-        Me.CreateDatabaseToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.OneByOneToolStripMenuItem})
+        Me.CreateDatabaseToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.OneByOneToolStripMenuItem, Me.FromGenBankToolStripMenuItem, Me.FromMixedGenBanksToolStripMenuItem})
         Me.CreateDatabaseToolStripMenuItem.Name = "CreateDatabaseToolStripMenuItem"
         Me.CreateDatabaseToolStripMenuItem.Size = New System.Drawing.Size(288, 26)
         Me.CreateDatabaseToolStripMenuItem.Text = "Create Database"
@@ -206,7 +208,7 @@ Partial Class Form1
         '
         Me.OneByOneToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ProteinToolStripMenuItem, Me.NucleotideToolStripMenuItem})
         Me.OneByOneToolStripMenuItem.Name = "OneByOneToolStripMenuItem"
-        Me.OneByOneToolStripMenuItem.Size = New System.Drawing.Size(160, 26)
+        Me.OneByOneToolStripMenuItem.Size = New System.Drawing.Size(231, 26)
         Me.OneByOneToolStripMenuItem.Text = "One by one"
         '
         'ProteinToolStripMenuItem
@@ -220,6 +222,12 @@ Partial Class Form1
         Me.NucleotideToolStripMenuItem.Name = "NucleotideToolStripMenuItem"
         Me.NucleotideToolStripMenuItem.Size = New System.Drawing.Size(157, 26)
         Me.NucleotideToolStripMenuItem.Text = "Nucleotide"
+        '
+        'FromGenBankToolStripMenuItem
+        '
+        Me.FromGenBankToolStripMenuItem.Name = "FromGenBankToolStripMenuItem"
+        Me.FromGenBankToolStripMenuItem.Size = New System.Drawing.Size(231, 26)
+        Me.FromGenBankToolStripMenuItem.Text = "From GenBank"
         '
         'SetBlastPathsToolStripMenuItem
         '
@@ -311,26 +319,38 @@ Partial Class Form1
         'HspsToolStripMenuItem
         '
         Me.HspsToolStripMenuItem.Name = "HspsToolStripMenuItem"
-        Me.HspsToolStripMenuItem.Size = New System.Drawing.Size(216, 26)
+        Me.HspsToolStripMenuItem.Size = New System.Drawing.Size(137, 26)
         Me.HspsToolStripMenuItem.Text = "Hsps"
         '
         'HitsToolStripMenuItem
         '
         Me.HitsToolStripMenuItem.Name = "HitsToolStripMenuItem"
-        Me.HitsToolStripMenuItem.Size = New System.Drawing.Size(216, 26)
+        Me.HitsToolStripMenuItem.Size = New System.Drawing.Size(137, 26)
         Me.HitsToolStripMenuItem.Text = "Hits"
         '
         'RecordsToolStripMenuItem
         '
         Me.RecordsToolStripMenuItem.Name = "RecordsToolStripMenuItem"
-        Me.RecordsToolStripMenuItem.Size = New System.Drawing.Size(216, 26)
+        Me.RecordsToolStripMenuItem.Size = New System.Drawing.Size(137, 26)
         Me.RecordsToolStripMenuItem.Text = "Records"
         '
         'ResetToolStripMenuItem
         '
         Me.ResetToolStripMenuItem.Name = "ResetToolStripMenuItem"
-        Me.ResetToolStripMenuItem.Size = New System.Drawing.Size(216, 26)
+        Me.ResetToolStripMenuItem.Size = New System.Drawing.Size(137, 26)
         Me.ResetToolStripMenuItem.Text = "Reset"
+        '
+        'LoadToolStripMenuItem
+        '
+        Me.LoadToolStripMenuItem.Name = "LoadToolStripMenuItem"
+        Me.LoadToolStripMenuItem.Size = New System.Drawing.Size(137, 26)
+        Me.LoadToolStripMenuItem.Text = "Load"
+        '
+        'MathToolStripMenuItem
+        '
+        Me.MathToolStripMenuItem.Name = "MathToolStripMenuItem"
+        Me.MathToolStripMenuItem.Size = New System.Drawing.Size(137, 26)
+        Me.MathToolStripMenuItem.Text = "Math"
         '
         'SplitContainer1
         '
@@ -350,6 +370,18 @@ Partial Class Form1
         Me.SplitContainer1.SplitterDistance = 266
         Me.SplitContainer1.TabIndex = 1
         '
+        'Tblb1
+        '
+        Me.Tblb1.DisplayMember = Nothing
+        Me.Tblb1.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Tblb1.Location = New System.Drawing.Point(0, 0)
+        Me.Tblb1.Name = "Tblb1"
+        Me.Tblb1.Original = CType(resources.GetObject("Tblb1.Original"), System.Collections.Generic.List(Of Object))
+        Me.Tblb1.Selected = CType(resources.GetObject("Tblb1.Selected"), System.Collections.Generic.List(Of Object))
+        Me.Tblb1.SelItem = Nothing
+        Me.Tblb1.Size = New System.Drawing.Size(266, 422)
+        Me.Tblb1.TabIndex = 0
+        '
         'dgv1
         '
         Me.dgv1.AllowUserToAddRows = False
@@ -363,24 +395,6 @@ Partial Class Form1
         Me.dgv1.Size = New System.Drawing.Size(324, 241)
         Me.dgv1.TabIndex = 1
         '
-        'LoadToolStripMenuItem
-        '
-        Me.LoadToolStripMenuItem.Name = "LoadToolStripMenuItem"
-        Me.LoadToolStripMenuItem.Size = New System.Drawing.Size(216, 26)
-        Me.LoadToolStripMenuItem.Text = "Load"
-        '
-        'Tblb1
-        '
-        Me.Tblb1.DisplayMember = Nothing
-        Me.Tblb1.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Tblb1.Location = New System.Drawing.Point(0, 0)
-        Me.Tblb1.Name = "Tblb1"
-        Me.Tblb1.Original = CType(resources.GetObject("Tblb1.Original"), System.Collections.Generic.List(Of Object))
-        Me.Tblb1.Selected = CType(resources.GetObject("Tblb1.Selected"), System.Collections.Generic.List(Of Object))
-        Me.Tblb1.SelItem = Nothing
-        Me.Tblb1.Size = New System.Drawing.Size(266, 422)
-        Me.Tblb1.TabIndex = 0
-        '
         'Tblb2
         '
         Me.Tblb2.DisplayMember = Nothing
@@ -393,11 +407,11 @@ Partial Class Form1
         Me.Tblb2.Size = New System.Drawing.Size(206, 422)
         Me.Tblb2.TabIndex = 0
         '
-        'MathToolStripMenuItem
+        'FromMixedGenBanksToolStripMenuItem
         '
-        Me.MathToolStripMenuItem.Name = "MathToolStripMenuItem"
-        Me.MathToolStripMenuItem.Size = New System.Drawing.Size(216, 26)
-        Me.MathToolStripMenuItem.Text = "Math"
+        Me.FromMixedGenBanksToolStripMenuItem.Name = "FromMixedGenBanksToolStripMenuItem"
+        Me.FromMixedGenBanksToolStripMenuItem.Size = New System.Drawing.Size(231, 26)
+        Me.FromMixedGenBanksToolStripMenuItem.Text = "From Mixed GenBanks"
         '
         'Form1
         '
@@ -467,4 +481,6 @@ Partial Class Form1
     Friend WithEvents ResetToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents LoadToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents MathToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents FromGenBankToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents FromMixedGenBanksToolStripMenuItem As ToolStripMenuItem
 End Class

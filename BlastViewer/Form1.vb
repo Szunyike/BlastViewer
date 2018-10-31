@@ -213,11 +213,13 @@ Public Class Form1
             My.Settings.Result = My.Settings.DataPath & "\Result\"
             My.Settings.Fasta = My.Settings.DataPath & "\Fasta\"
             My.Settings.Filter = My.Settings.DataPath & "\Filter\"
+            My.Settings.Tax = My.Settings.DataPath & "\Tax\"
             System.IO.Directory.CreateDirectory(My.Settings.DataPath)
             System.IO.Directory.CreateDirectory(My.Settings.Db)
             System.IO.Directory.CreateDirectory(My.Settings.Result)
             System.IO.Directory.CreateDirectory(My.Settings.Fasta)
             System.IO.Directory.CreateDirectory(My.Settings.Filter)
+            System.IO.Directory.CreateDirectory(My.Settings.Tax)
             My.Settings.Save()
         End If
     End Sub
@@ -249,6 +251,9 @@ Public Class Form1
 
 #End Region
 #Region "Create Db"
+    Private Iterator Function Get_GenBank(File As FileInfo) As IEnumerable(Of Bio.ISequence)
+
+    End Function
     Private Iterator Function Get_Fasta() As IEnumerable(Of FileInfo)
         Dim Files = Szunyi.IO.Pick_Up.Fasta
         Dim wFIles As New List(Of FileInfo)
@@ -281,6 +286,64 @@ Public Class Form1
 #End Region
 #Region "DoBlast"
 #Region "MenuItems"
+    Private Sub FromMixedGenBanksToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles FromMixedGenBanksToolStripMenuItem.Click
+        Dim Files = Szunyi.IO.Pick_Up.GenBank
+        Dim Title = InputBox("Enter Database Title")
+        If Title = "" Then Exit Sub
+        Dim nFile As New FileInfo(My.Settings.Fasta & Title & ".fa")
+        Dim str As New System.Text.StringBuilder
+        Using x As New Szunyi.IO.Export.Fasta_Exporter(nFile)
+
+            Dim isNucle As Boolean = True
+            For Each Seq In Szunyi.IO.Import.Sequences.Parse(Files)
+                x.Write(Seq)
+                str.Append(Seq.ID).Append(vbTab).Append(Szunyi.Features.GenBankMetaDataManipulation.Get_TaxID(Seq)).AppendLine()
+                Dim MolType = Szunyi.Features.GenBankMetaDataManipulation.Get_Mol_Type(Seq)
+
+                If MolType = Bio.IO.GenBank.MoleculeType.Protein Then isNucle = False
+            Next
+        End Using
+        If str.Length > 0 Then str.Length -= 2
+            Dim TaxFIle As New FileInfo(My.Settings.Tax & Title)
+            Szunyi.IO.Export.Text(str.ToString, TaxFIle)
+            Dim x1 As New Szunyi.BLAST.Console.CreateDatabase(nFile,
+                                                               True,
+                                                               New DirectoryInfo(My.Settings.BlastPath),
+                                                                New DirectoryInfo(My.Settings.Db), TaxFIle)
+            x1.DoIt()
+
+
+
+
+    End Sub
+    Private Sub FromGenBankToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles FromGenBankToolStripMenuItem.Click
+        Dim Files = Szunyi.IO.Pick_Up.GenBank
+        For Each File In Files
+            Dim nFIle = Szunyi.IO.Rename.Change_Directory(File, New DirectoryInfo(My.Settings.Fasta))
+            nFIle = Szunyi.IO.Rename.ChangeExtension(nFIle, Szunyi.IO.File_Extension.fasta)
+
+
+            Dim Seqs = Szunyi.IO.Import.Sequences.Parse(File).ToList
+
+            Dim Common_Name = Szunyi.Features.GenBankMetaDataManipulation.Get_Common_Name(Seqs.First).Replace(" ", "_")
+            Dim TaxID = Szunyi.Features.GenBankMetaDataManipulation.Get_TaxID(Seqs.First)
+            Dim nnFile = Szunyi.IO.Rename.Append_First(nFIle, TaxID & "_" & Common_Name)
+            Szunyi.IO.Export.Fasta(Seqs, nnFile)
+            Dim MolType = Szunyi.Features.GenBankMetaDataManipulation.Get_Mol_Type(Seqs.First)
+            Dim isNucle As Boolean = True
+            If MolType = Bio.IO.GenBank.MoleculeType.Protein Then isNucle = False
+            Dim x As New Szunyi.BLAST.Console.CreateDatabase(nnFile,
+                                                               True,
+                                                               New DirectoryInfo(My.Settings.BlastPath),
+                                                                New DirectoryInfo(My.Settings.Db), TaxID)
+            x.DoIt()
+            Dim kj As Int16 = 54
+
+        Next
+
+
+
+    End Sub
     Private Sub NucleotideToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles NucleotideToolStripMenuItem.Click
         For Each File In Get_Fasta()
             Dim x As New Szunyi.BLAST.Console.CreateDatabase(File,
@@ -375,11 +438,20 @@ Public Class Form1
         If t.ShowDialog = DialogResult.OK Then
             For Each Item In t.SelectedStrings
                 Dim outfmt = Helper.Get_outfmt_Value(Item)
+                Dim q As String = ""
+                If outfmt = 7 Then
+                    Dim Quals() = Split("qseqid qgi qacc sseqid sallseqid sgi sallgi sacc sallacc qstart qend sstart send qseq sseq evalue bitscore score length pident nident mismatch positive gapopen gaps ppos frames qframe sframe btop staxids sscinames scomnames sblastnames sskingdoms stitle salltitles sstrand qcovs qcovhsp qcovus")
+                    Dim t1 As New CheckBoxForStringsFull(Quals.ToList, -1, "Select Qulifiers", Quals.ToList)
+
+                    If t1.ShowDialog = DialogResult.OK Then
+                        q = Szunyi.Common.Text.General.GetText(t1.SelectedStrings, " ")
+                    End If
+                End If
                 Dim x As New Szunyi.BLAST.Console.DoBlast(QueryFiles,
                                                            DbFiles,
                                                            SelectedProgram,
                                                            outfmt, New DirectoryInfo(My.Settings.BlastPath),
-                                                           New DirectoryInfo(My.Settings.Result))
+                                                           New DirectoryInfo(My.Settings.Result), q)
 
                 Me.CreateBgWork(x.ToString, x)
             Next
@@ -496,7 +568,14 @@ Public Class Form1
     Private Sub MathToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles MathToolStripMenuItem.Click
         Dim x As New MathEvalution(Me.ClonedAndFilteredBlastSearchRecords)
 
-        x.Show()
+        If x.ShowDialog = DialogResult.OK Then
+            Me.ClonedAndFilteredBlastSearchRecords = x.clonedAndFilteredBlastSearchRecords
+            Tblb1.SetIt(Me.ClonedAndFilteredBlastSearchRecords, Me.DisplayMemberofRecord)
+        End If
     End Sub
+
+
+
+
 #End Region
 End Class
