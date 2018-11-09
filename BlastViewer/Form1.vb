@@ -15,43 +15,84 @@ Public Class Form1
     ''' <summary>
     ''' This is always containig the original result
     ''' </summary>
-    Dim OriginalBlastSearchResults As New List(Of Bio.Web.Blast.BlastResult)
+    Dim OriginalBlastSearchResults As New List(Of OwnBlastRecord)
     ''' <summary>
     ''' This is contains the filtered Blast Results which can be Reset
     ''' </summary>
-    Dim OriginalBlastSearchRecords As New List(Of Bio.Web.Blast.BlastSearchRecord)
-    Dim ClonedAndFilteredBlastSearchRecords As New List(Of Bio.Web.Blast.BlastSearchRecord)
+    Dim OriginalBlastSearchRecords As New List(Of OwnBlastRecord)
+    Dim ClonedAndFilteredBlastSearchRecords As New List(Of OwnBlastRecord)
     Dim OpenedFiles As New List(Of FileInfo)
 
     Private DisplayMemberofHit As String = "Accession"
     Private DisplayMemberofRecord As String = "IterationQueryDefinition"
     Private DisplayMembersAll As New List(Of String)
     Private currAll As IQueryable
-    Private ByFiles As New List(Of List(Of BlastSearchRecord))
+    Private ByFiles As New List(Of List(Of OwnBlastRecord))
     Private Sub ImportToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ImportToolStripMenuItem.Click
         Dim Files = Szunyi.IO.Pick_Up.Files(Szunyi.IO.File_Extensions.Blast, "Select Blast Result", New DirectoryInfo(My.Settings.Result)).ToList
-        Dim log As System.Text.StringBuilder
+        Dim log As New System.Text.StringBuilder
         OpenedFiles = Files
         ClonedAndFilteredBlastSearchRecords.Clear()
+        Dim All_Record As New List(Of OwnBlastRecord)
         For Each File In Files
             Dim Records = Szunyi.BLAST.Import.From_File(File, log).ToList
             ByFiles.Add(Records)
-            ClonedAndFilteredBlastSearchRecords.AddRange(Records)
+            '     ClonedAndFilteredBlastSearchRecords.AddRange(Records)
+            All_Record.AddRange(Records)
+        Next
+        Dim gr = From x In All_Record Group By x.IterationQueryDefinition Into Group
+
+        For Each g In gr
+            Dim kj As Int16 = 54
+            Dim t As OwnBlastRecord
+            Dim cHits As New List(Of Bio.Web.Blast.Hit)
+            For Each item In g.Group
+                If item Is g.Group.First Then
+                    t = item.Clone
+                Else
+                    t.OwnHits.AddRange(item.OwnHits)
+                    cHits.AddRange(item.Hits)
+                End If
+
+
+            Next
+            For Each c In cHits
+                t.Hits.Add(c)
+            Next
+
+            ClonedAndFilteredBlastSearchRecords.Add(t)
+            If t.OwnHits.Count <> t.Hits.Count Then
+                Dim kjtfg As Int16 = 54
+            End If
         Next
         Me.OriginalBlastSearchRecords = ClonedAndFilteredBlastSearchRecords.Clone
         Tblb1.SetIt(ClonedAndFilteredBlastSearchRecords, DisplayMemberofRecord)
 
 
     End Sub
+    Private Sub ImportCompressedToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ImportCompressedToolStripMenuItem.Click
+        Dim Files = Szunyi.IO.Pick_Up.Files(Szunyi.IO.File_Extensions.Blast, "Select Blast Result", New DirectoryInfo(My.Settings.Result)).ToList
+        Dim log As System.Text.StringBuilder
+        OpenedFiles = Files
+        ClonedAndFilteredBlastSearchRecords.Clear()
+        For Each File In Files
+            Dim Records = Szunyi.BLAST.Import.From_File(File, log, True).ToList
+            ByFiles.Add(Records)
+            ClonedAndFilteredBlastSearchRecords.AddRange(Records)
+        Next
+        Me.OriginalBlastSearchRecords = ClonedAndFilteredBlastSearchRecords.Clone
+        Tblb1.SetIt(ClonedAndFilteredBlastSearchRecords, DisplayMemberofRecord)
+
+    End Sub
 
 
-    Private Function GetFilteredBlastSearchRecords(Filter As String) As List(Of Bio.Web.Blast.BlastSearchRecord)
+    Private Function GetFilteredBlastSearchRecords(Filter As String) As List(Of OwnBlastRecord)
         Dim res = From x In Me.ClonedAndFilteredBlastSearchRecords Where x.IterationQueryDefinition.ToUpper.Contains(Filter.ToUpper)
 
         If res.Count > 0 Then
             Return res.ToList
         Else
-            Return New List(Of Bio.Web.Blast.BlastSearchRecord)
+            Return New List(Of OwnBlastRecord)
 
         End If
     End Function
@@ -168,9 +209,9 @@ Public Class Form1
     End Sub
 
     Private Sub tbl1(Item As Object) Handles Tblb1.IndexChanged
-        Dim curr As Bio.Web.Blast.BlastSearchRecord = Item
+        Dim curr As OwnBlastRecord = Item
         Tblb2.SetIt(curr.Hits, DisplayMemberofHit)
-        Dim HSPs = Szunyi.BLAST.BlastManipulation.Hsp.All(curr)
+        Dim HSPs = Szunyi.BLAST.BlastManipulation.Hsp.All_Own(curr)
         Dim var = From x In HSPs Select x.Record.Hits
 
         Dim profiles = HSPs.AsQueryable()
@@ -226,7 +267,7 @@ Public Class Form1
 
     Private Sub Tblb2_IndexChanged(Item As Object) Handles Tblb2.D_Click
 
-        Dim HSPs = Szunyi.BLAST.BlastManipulation.Hsp.All(Tblb1.SelItem, Tblb2.SelItem)
+        Dim HSPs As List(Of extHSP) = Szunyi.BLAST.BlastManipulation.Hsp.All_Own(Tblb1.SelItem, Tblb2.SelItem)
         Dim var = From x In HSPs Select x.Record.Hits
 
         Dim profiles = HSPs.AsQueryable()
@@ -440,7 +481,7 @@ Public Class Form1
                 Dim outfmt = Helper.Get_outfmt_Value(Item)
                 Dim q As String = ""
                 If outfmt = 7 Then
-                    Dim Quals() = Split("qseqid qgi qacc sseqid sallseqid sgi sallgi sacc sallacc qstart qend sstart send qseq sseq evalue bitscore score length pident nident mismatch positive gapopen gaps ppos frames qframe sframe btop staxids sscinames scomnames sblastnames sskingdoms stitle salltitles sstrand qcovs qcovhsp qcovus")
+                    Dim Quals() = Split("slen qlen qseqid qgi qacc sseqid sallseqid sgi sallgi sacc sallacc qstart qend sstart send qseq sseq evalue bitscore score length pident nident mismatch positive gapopen gaps ppos frames qframe sframe btop staxids sscinames scomnames sblastnames sskingdoms stitle salltitles sstrand qcovs qcovhsp qcovus")
                     Dim t1 As New CheckBoxForStringsFull(Quals.ToList, -1, "Select Qulifiers", Quals.ToList)
 
                     If t1.ShowDialog = DialogResult.OK Then
@@ -553,15 +594,15 @@ Public Class Form1
             Dim Header = Szunyi.Common.Text.General.GetText(x.SelectedStrings, vbTab)
             Filtered.Add(Header)
             Dim Types = Szunyi.Common.Util_Helpers.Get_Enums(Of Szunyi.BLAST.Enums.Record)(x.SelectedStrings)
-            Filtered.AddRange(Szunyi.BLAST.BlastManipulation.Record.Custom(Me.ClonedAndFilteredBlastSearchRecords, Types))
-            Dim s = Szunyi.Common.Text.General.GetText(Filtered)
-            Clipboard.SetText(s)
+            '   Filtered.AddRange(Szunyi.BLAST.BlastManipulation.Record.Custom(Me.ClonedAndFilteredBlastSearchRecords, Types))
+            '    Dim s = Szunyi.Common.Text.General.GetText(Filtered)
+            '    Clipboard.SetText(s)
             Dim kj As Int16 = 54
         End If
     End Sub
 
     Private Sub ResetToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ResetToolStripMenuItem.Click
-        Me.ClonedAndFilteredBlastSearchRecords = OriginalBlastSearchRecords.Clone
+        Me.ClonedAndFilteredBlastSearchRecords = Me.OriginalBlastSearchRecords
         Tblb1.SetIt(Me.ClonedAndFilteredBlastSearchRecords, Me.DisplayMemberofRecord)
     End Sub
 
@@ -569,10 +610,99 @@ Public Class Form1
         Dim x As New MathEvalution(Me.ClonedAndFilteredBlastSearchRecords)
 
         If x.ShowDialog = DialogResult.OK Then
-            Me.ClonedAndFilteredBlastSearchRecords = x.clonedAndFilteredBlastSearchRecords
+            Me.ClonedAndFilteredBlastSearchRecords = x.cOwnRecords
             Tblb1.SetIt(Me.ClonedAndFilteredBlastSearchRecords, Me.DisplayMemberofRecord)
         End If
     End Sub
+
+    Private Sub ByTaxIDToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ByTaxIDToolStripMenuItem.Click
+        Dim res As New Dictionary(Of String, Dictionary(Of String, Integer))
+        Dim AllTaxID As New List(Of String)
+        Dim AllTaxName As New List(Of String)
+        For Each Item As OwnBlastRecord In Me.ClonedAndFilteredBlastSearchRecords
+            If IsNothing(Item.IterationQueryDefinition) = False Then
+                res.Add(Item.IterationQueryDefinition, New Dictionary(Of String, Integer))
+                For Each oHit In Item.OwnHits
+                    If res(Item.IterationQueryDefinition).ContainsKey(oHit.OwnHsps.First.TaxID) = False Then
+                        res(Item.IterationQueryDefinition).Add(oHit.OwnHsps.First.TaxID, 0)
+                    End If
+                    res(Item.IterationQueryDefinition)(oHit.OwnHsps.First.TaxID) += 1
+                    If AllTaxID.Contains(oHit.OwnHsps.First.TaxID) = False Then
+                        AllTaxID.Add(oHit.OwnHsps.First.TaxID)
+                        AllTaxName.Add(oHit.OwnHsps.First.CommonName)
+                    End If
+                Next
+            End If
+        Next
+        Dim Log As New System.Text.StringBuilder
+        Log.Append(vbTab)
+        Log.Append(Szunyi.Common.Text.General.GetText(AllTaxName, vbTab))
+        For Each Item In res
+            Log.Append(Item.Key)
+            Dim c As Integer = 0
+            For Each TaxId In AllTaxID
+
+                If Item.Value.ContainsKey(TaxId) = True Then
+                    Log.Append(vbTab)
+                    Log.Append(Item.Value(TaxId))
+                    c += 1
+                Else
+                    Log.Append(vbTab).Append("0")
+                End If
+            Next
+            Log.Append(vbTab & c)
+            Log.AppendLine()
+        Next
+        Dim kj As Integer = 65
+    End Sub
+
+    Private Sub ByFileToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ByFileToolStripMenuItem.Click
+        Dim res As New Dictionary(Of String, Dictionary(Of String, Integer))
+        Dim AllTaxID As New List(Of String)
+        Dim AllTaxName As New List(Of String)
+
+        For i1 = 0 To Me.ByFiles.Count - 1
+            For Each Item As OwnBlastRecord In ByFiles(i1)
+                If IsNothing(Item.IterationQueryDefinition) = False Then
+                    If res.ContainsKey(Item.IterationQueryDefinition) = False Then res.Add(Item.IterationQueryDefinition, New Dictionary(Of String, Integer))
+                    Dim Name As String = Me.OpenedFiles(i1).Name
+                    For Each oHit In Item.OwnHits
+                        If res(Item.IterationQueryDefinition).ContainsKey(Name) = False Then
+                            res(Item.IterationQueryDefinition).Add(Name, 0)
+                        End If
+                        res(Item.IterationQueryDefinition)(Name) += 1
+                        If AllTaxID.Contains(Name) = False Then
+                            AllTaxID.Add(Name)
+                            AllTaxName.Add(Name)
+                        End If
+                    Next
+                End If
+            Next
+        Next
+
+
+
+        Dim Log As New System.Text.StringBuilder
+        Log.Append(vbTab)
+        Log.Append(Szunyi.Common.Text.General.GetText(AllTaxName, vbTab)).AppendLine()
+        For Each Item In res
+            Log.Append(Item.Key)
+            Dim c As Integer = 0
+            For Each TaxId In AllTaxID
+
+                If Item.Value.ContainsKey(TaxId) = True Then
+                    Log.Append(vbTab)
+                    Log.Append(Item.Value(TaxId))
+                    c += 1
+                Else
+                    Log.Append(vbTab).Append("0")
+                End If
+            Next
+            Log.Append(vbTab & c)
+            Log.AppendLine()
+        Next
+    End Sub
+
 
 
 

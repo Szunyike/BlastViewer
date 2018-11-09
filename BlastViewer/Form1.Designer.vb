@@ -40,12 +40,14 @@ Partial Class Form1
         Me.BestToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.AllToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.RecordsToolStripMenuItem1 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ImportCompressedToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.BlastToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.CreateDatabaseToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.OneByOneToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ProteinToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.NucleotideToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.FromGenBankToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.FromMixedGenBanksToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.SetBlastPathsToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.SetExecutableFolderToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.SetWorkingDirectoryToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
@@ -66,11 +68,13 @@ Partial Class Form1
         Me.ResetToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.LoadToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.MathToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.AnalyseToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ByTaxIDToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.SplitContainer1 = New System.Windows.Forms.SplitContainer()
-        Me.Tblb1 = New Szunyi.IO.tblb()
         Me.dgv1 = New System.Windows.Forms.DataGridView()
+        Me.Tblb1 = New Szunyi.IO.tblb()
         Me.Tblb2 = New Szunyi.IO.tblb()
-        Me.FromMixedGenBanksToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ByFileToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.MenuStrip1.SuspendLayout()
         CType(Me.SplitContainer1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SplitContainer1.Panel1.SuspendLayout()
@@ -82,7 +86,7 @@ Partial Class Form1
         'MenuStrip1
         '
         Me.MenuStrip1.ImageScalingSize = New System.Drawing.Size(20, 20)
-        Me.MenuStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.FileToolStripMenuItem, Me.BlastToolStripMenuItem, Me.DisplayToolStripMenuItem, Me.FilterToolStripMenuItem})
+        Me.MenuStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.FileToolStripMenuItem, Me.BlastToolStripMenuItem, Me.DisplayToolStripMenuItem, Me.FilterToolStripMenuItem, Me.AnalyseToolStripMenuItem})
         Me.MenuStrip1.Location = New System.Drawing.Point(0, 0)
         Me.MenuStrip1.Name = "MenuStrip1"
         Me.MenuStrip1.Size = New System.Drawing.Size(800, 28)
@@ -91,7 +95,7 @@ Partial Class Form1
         '
         'FileToolStripMenuItem
         '
-        Me.FileToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ImportToolStripMenuItem, Me.ExportToolStripMenuItem})
+        Me.FileToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ImportToolStripMenuItem, Me.ExportToolStripMenuItem, Me.ImportCompressedToolStripMenuItem})
         Me.FileToolStripMenuItem.Name = "FileToolStripMenuItem"
         Me.FileToolStripMenuItem.Size = New System.Drawing.Size(44, 24)
         Me.FileToolStripMenuItem.Text = "File"
@@ -99,14 +103,14 @@ Partial Class Form1
         'ImportToolStripMenuItem
         '
         Me.ImportToolStripMenuItem.Name = "ImportToolStripMenuItem"
-        Me.ImportToolStripMenuItem.Size = New System.Drawing.Size(129, 26)
+        Me.ImportToolStripMenuItem.Size = New System.Drawing.Size(216, 26)
         Me.ImportToolStripMenuItem.Text = "Import"
         '
         'ExportToolStripMenuItem
         '
         Me.ExportToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.SequncesToolStripMenuItem, Me.IDsToolStripMenuItem, Me.Gff3ToolStripMenuItem, Me.HitsToolStripMenuItem1, Me.RecordsToolStripMenuItem1})
         Me.ExportToolStripMenuItem.Name = "ExportToolStripMenuItem"
-        Me.ExportToolStripMenuItem.Size = New System.Drawing.Size(129, 26)
+        Me.ExportToolStripMenuItem.Size = New System.Drawing.Size(216, 26)
         Me.ExportToolStripMenuItem.Text = "Export"
         '
         'SequncesToolStripMenuItem
@@ -190,6 +194,12 @@ Partial Class Form1
         Me.RecordsToolStripMenuItem1.Size = New System.Drawing.Size(154, 26)
         Me.RecordsToolStripMenuItem1.Text = "Records"
         '
+        'ImportCompressedToolStripMenuItem
+        '
+        Me.ImportCompressedToolStripMenuItem.Name = "ImportCompressedToolStripMenuItem"
+        Me.ImportCompressedToolStripMenuItem.Size = New System.Drawing.Size(216, 26)
+        Me.ImportCompressedToolStripMenuItem.Text = "Import Compressed"
+        '
         'BlastToolStripMenuItem
         '
         Me.BlastToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.CreateDatabaseToolStripMenuItem, Me.SetBlastPathsToolStripMenuItem, Me.BlastNToolStripMenuItem, Me.BlastPQprotDBprotToolStripMenuItem, Me.BlastXQTrNucDBprotToolStripMenuItem, Me.TBlastNQprotDBTrNuclToolStripMenuItem, Me.TBlastXQTrNucDBTrNucToolStripMenuItem, Me.BlatQnucDBnucToolStripMenuItem})
@@ -228,6 +238,12 @@ Partial Class Form1
         Me.FromGenBankToolStripMenuItem.Name = "FromGenBankToolStripMenuItem"
         Me.FromGenBankToolStripMenuItem.Size = New System.Drawing.Size(231, 26)
         Me.FromGenBankToolStripMenuItem.Text = "From GenBank"
+        '
+        'FromMixedGenBanksToolStripMenuItem
+        '
+        Me.FromMixedGenBanksToolStripMenuItem.Name = "FromMixedGenBanksToolStripMenuItem"
+        Me.FromMixedGenBanksToolStripMenuItem.Size = New System.Drawing.Size(231, 26)
+        Me.FromMixedGenBanksToolStripMenuItem.Text = "From Mixed GenBanks"
         '
         'SetBlastPathsToolStripMenuItem
         '
@@ -352,6 +368,19 @@ Partial Class Form1
         Me.MathToolStripMenuItem.Size = New System.Drawing.Size(137, 26)
         Me.MathToolStripMenuItem.Text = "Math"
         '
+        'AnalyseToolStripMenuItem
+        '
+        Me.AnalyseToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ByTaxIDToolStripMenuItem, Me.ByFileToolStripMenuItem})
+        Me.AnalyseToolStripMenuItem.Name = "AnalyseToolStripMenuItem"
+        Me.AnalyseToolStripMenuItem.Size = New System.Drawing.Size(72, 24)
+        Me.AnalyseToolStripMenuItem.Text = "Analyse"
+        '
+        'ByTaxIDToolStripMenuItem
+        '
+        Me.ByTaxIDToolStripMenuItem.Name = "ByTaxIDToolStripMenuItem"
+        Me.ByTaxIDToolStripMenuItem.Size = New System.Drawing.Size(216, 26)
+        Me.ByTaxIDToolStripMenuItem.Text = "By TaxID"
+        '
         'SplitContainer1
         '
         Me.SplitContainer1.Dock = System.Windows.Forms.DockStyle.Fill
@@ -370,6 +399,19 @@ Partial Class Form1
         Me.SplitContainer1.SplitterDistance = 266
         Me.SplitContainer1.TabIndex = 1
         '
+        'dgv1
+        '
+        Me.dgv1.AllowUserToAddRows = False
+        Me.dgv1.AllowUserToDeleteRows = False
+        Me.dgv1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
+        Me.dgv1.Dock = System.Windows.Forms.DockStyle.Top
+        Me.dgv1.Location = New System.Drawing.Point(206, 0)
+        Me.dgv1.Name = "dgv1"
+        Me.dgv1.ReadOnly = True
+        Me.dgv1.RowTemplate.Height = 24
+        Me.dgv1.Size = New System.Drawing.Size(324, 353)
+        Me.dgv1.TabIndex = 1
+        '
         'Tblb1
         '
         Me.Tblb1.DisplayMember = Nothing
@@ -381,19 +423,6 @@ Partial Class Form1
         Me.Tblb1.SelItem = Nothing
         Me.Tblb1.Size = New System.Drawing.Size(266, 422)
         Me.Tblb1.TabIndex = 0
-        '
-        'dgv1
-        '
-        Me.dgv1.AllowUserToAddRows = False
-        Me.dgv1.AllowUserToDeleteRows = False
-        Me.dgv1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        Me.dgv1.Dock = System.Windows.Forms.DockStyle.Top
-        Me.dgv1.Location = New System.Drawing.Point(206, 0)
-        Me.dgv1.Name = "dgv1"
-        Me.dgv1.ReadOnly = True
-        Me.dgv1.RowTemplate.Height = 24
-        Me.dgv1.Size = New System.Drawing.Size(324, 241)
-        Me.dgv1.TabIndex = 1
         '
         'Tblb2
         '
@@ -407,11 +436,11 @@ Partial Class Form1
         Me.Tblb2.Size = New System.Drawing.Size(206, 422)
         Me.Tblb2.TabIndex = 0
         '
-        'FromMixedGenBanksToolStripMenuItem
+        'ByFileToolStripMenuItem
         '
-        Me.FromMixedGenBanksToolStripMenuItem.Name = "FromMixedGenBanksToolStripMenuItem"
-        Me.FromMixedGenBanksToolStripMenuItem.Size = New System.Drawing.Size(231, 26)
-        Me.FromMixedGenBanksToolStripMenuItem.Text = "From Mixed GenBanks"
+        Me.ByFileToolStripMenuItem.Name = "ByFileToolStripMenuItem"
+        Me.ByFileToolStripMenuItem.Size = New System.Drawing.Size(216, 26)
+        Me.ByFileToolStripMenuItem.Text = "By File"
         '
         'Form1
         '
@@ -483,4 +512,8 @@ Partial Class Form1
     Friend WithEvents MathToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents FromGenBankToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents FromMixedGenBanksToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents AnalyseToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents ByTaxIDToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents ImportCompressedToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents ByFileToolStripMenuItem As ToolStripMenuItem
 End Class

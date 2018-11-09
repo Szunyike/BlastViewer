@@ -6,7 +6,9 @@ Imports Szunyi.Math
 
 Public Class MathEvalution
 
-    Public clonedAndFilteredBlastSearchRecords As List(Of BlastSearchRecord)
+    Public bRecords As New List(Of BlastSearchRecord)
+    Public cOwnRecords As New List(Of Szunyi.BLAST.OwnBlastRecord)
+    Public Records As List(Of Szunyi.BLAST.OwnBlastRecord)
     Private extHsps As List(Of Szunyi.BLAST.extHSP)
     Public Sub New()
 
@@ -25,8 +27,17 @@ Public Class MathEvalution
 
         ' Add any initialization after the InitializeComponent() call.
 
-        Me.clonedAndFilteredBlastSearchRecords = clonedAndFilteredBlastSearchRecords
+        Me.bRecords = clonedAndFilteredBlastSearchRecords
         extHsps = Szunyi.BLAST.BlastManipulation.Hsp.All(clonedAndFilteredBlastSearchRecords)
+    End Sub
+    Public Sub New(clonedAndFilteredBlastSearchRecords As List(Of Szunyi.BLAST.OwnBlastRecord))
+        ' This call is required by the designer.
+        InitializeComponent()
+
+        ' Add any initialization after the InitializeComponent() call.
+        extHsps = Szunyi.BLAST.BlastManipulation.Hsp.All(clonedAndFilteredBlastSearchRecords)
+        cOwnRecords = clonedAndFilteredBlastSearchRecords
+        '  extHsps = Szunyi.BLAST.BlastManipulation.Hsp.All(clonedAndFilteredBlastSearchRecords)
     End Sub
 
     Private Sub MathEvalution_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -106,15 +117,19 @@ Public Class MathEvalution
                 Me.DialogResult = DialogResult.Cancel
                 Me.Close()
             Case "Maintain True"
-                Dim Arguments = GetArguments(1000)
+                Dim Arguments = GetArguments()
                 Dim Index As Integer = 0
+                Dim Removed As Integer = 0
                 For Each Item In Calculate(Arguments)
                     If Item = 0 Then
-                        Me.clonedAndFilteredBlastSearchRecords(extHsps(Index).RecordID).Hits(extHsps(Index).HitID).Hsps(extHsps(Index).HSPID) = Nothing
+                        cOwnRecords(extHsps(Index).RecordID).Hits(extHsps(Index).HitID).Hsps(extHsps(Index).HSPID) = Nothing
+                        Removed += 1
                     End If
                     Index += 1
                 Next
-                Me.clonedAndFilteredBlastSearchRecords = Szunyi.BLAST.Filter.HSP.Clear(Me.clonedAndFilteredBlastSearchRecords)
+                Szunyi.BLAST.Filter.HSP.Clear(cOwnRecords)
+                Dim kj = "True:" & Index - Removed & vbCrLf & "False:" & Removed
+                MsgBox(kj)
                 Me.DialogResult = DialogResult.OK
                 Me.Close()
             Case "Maintain False"
@@ -122,11 +137,11 @@ Public Class MathEvalution
                 Dim Index As Integer = 0
                 For Each Item In Calculate(Arguments)
                     If Item = 1 Then
-                        Me.clonedAndFilteredBlastSearchRecords(extHsps(Index).RecordID).Hits(extHsps(Index).HitID).Hsps(extHsps(Index).HSPID) = Nothing
+                        Me.cOwnRecords(extHsps(Index).RecordID).Hits(extHsps(Index).HitID).Hsps(extHsps(Index).HSPID) = Nothing
                     End If
                     Index += 1
                 Next
-                Me.clonedAndFilteredBlastSearchRecords = Szunyi.BLAST.Filter.HSP.Clear(Me.clonedAndFilteredBlastSearchRecords)
+                Me.cOwnRecords = Szunyi.BLAST.Filter.HSP.Clear(Me.cOwnRecords)
                 Me.DialogResult = DialogResult.OK
                 Me.Close()
             Case "Test"
