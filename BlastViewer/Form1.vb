@@ -5,7 +5,9 @@ Imports Szunyi.IO
 Imports Szunyi.BLAST.Enums
 Imports Szunyi.BLAST
 Imports Szunyi.Common
+Imports Szunyi.Sequences.Extensions
 Imports System.Linq.Dynamic.Core
+Imports System.Text
 'Imports System.Linq.Dynamic
 
 
@@ -28,48 +30,10 @@ Public Class Form1
     Private DisplayMembersAll As New List(Of String)
     Private currAll As IQueryable
     Private ByFiles As New List(Of List(Of OwnBlastRecord))
-    Private Sub ImportToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ImportToolStripMenuItem.Click
-        Dim Files = Szunyi.IO.Pick_Up.Files(Szunyi.IO.File_Extensions.Blast, "Select Blast Result", New DirectoryInfo(My.Settings.Result)).ToList
-        Dim log As New System.Text.StringBuilder
-        OpenedFiles = Files
-        ClonedAndFilteredBlastSearchRecords.Clear()
-        Dim All_Record As New List(Of OwnBlastRecord)
-        For Each File In Files
-            Dim Records = Szunyi.BLAST.Import.From_File(File, log).ToList
-            ByFiles.Add(Records)
-            '     ClonedAndFilteredBlastSearchRecords.AddRange(Records)
-            All_Record.AddRange(Records)
-        Next
-        Dim gr = From x In All_Record Group By x.IterationQueryDefinition Into Group
-
-        For Each g In gr
-            Dim kj As Int16 = 54
-            Dim t As OwnBlastRecord
-            Dim cHits As New List(Of Bio.Web.Blast.Hit)
-            For Each item In g.Group
-                If item Is g.Group.First Then
-                    t = item.Clone
-                Else
-                    t.OwnHits.AddRange(item.OwnHits)
-                    cHits.AddRange(item.Hits)
-                End If
-
-
-            Next
-            For Each c In cHits
-                t.Hits.Add(c)
-            Next
-
-            ClonedAndFilteredBlastSearchRecords.Add(t)
-            If t.OwnHits.Count <> t.Hits.Count Then
-                Dim kjtfg As Int16 = 54
-            End If
-        Next
-        Me.OriginalBlastSearchRecords = ClonedAndFilteredBlastSearchRecords.Clone
-        Tblb1.SetIt(ClonedAndFilteredBlastSearchRecords, DisplayMemberofRecord)
-
+    Private Sub ImportFromExternalIDsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ImportFromExternalIDsToolStripMenuItem.Click
 
     End Sub
+
     Private Sub ImportCompressedToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ImportCompressedToolStripMenuItem.Click
         Dim Files = Szunyi.IO.Pick_Up.Files(Szunyi.IO.File_Extensions.Blast, "Select Blast Result", New DirectoryInfo(My.Settings.Result)).ToList
         Dim log As System.Text.StringBuilder
@@ -146,8 +110,9 @@ Public Class Form1
         Dim t = GetType(Szunyi.BLAST.Enums.Hsp)
         Dim x As New Szunyi.IO.Filter(t, New DirectoryInfo(My.Settings.Filter))
         If x.ShowDialog() = DialogResult.OK Then
-            Dim prop = Szunyi.IO.Util_Helpers.Set_Filter_Settings(Of Szunyi.BLAST.Enums.Hsp)(x.Setting)
-
+            Dim props = Szunyi.IO.Util_Helpers.Set_Filter_Settings(Of Szunyi.BLAST.Enums.Hsp)(x.Setting)
+            Dim c = Szunyi.BLAST.Filter.Filter_Hits(props, Me.ClonedAndFilteredBlastSearchRecords)
+            Dim kj As Int16 = 54
         End If
     End Sub
 
@@ -304,6 +269,7 @@ Public Class Form1
             If nFIle.FullName <> File.FullName Then
                 If nFIle.Exists = True Then
                     MsgBox("File is already in database. We used the stored one")
+                    Yield nFIle
                 Else
                     File.CopyTo(nFIle.FullName)
                     Yield nFIle
@@ -345,13 +311,13 @@ Public Class Form1
             Next
         End Using
         If str.Length > 0 Then str.Length -= 2
-            Dim TaxFIle As New FileInfo(My.Settings.Tax & Title)
-            Szunyi.IO.Export.Text(str.ToString, TaxFIle)
-            Dim x1 As New Szunyi.BLAST.Console.CreateDatabase(nFile,
-                                                               True,
-                                                               New DirectoryInfo(My.Settings.BlastPath),
-                                                                New DirectoryInfo(My.Settings.Db), TaxFIle)
-            x1.DoIt()
+        Dim TaxFIle As New FileInfo(My.Settings.Tax & Title)
+        Szunyi.IO.Export.Text(str.ToString, TaxFIle)
+        Dim x1 As New Szunyi.BLAST.Console.CreateDatabase(nFile,
+                                                           True,
+                                                           New DirectoryInfo(My.Settings.BlastPath),
+                                                            New DirectoryInfo(My.Settings.Db), TaxFIle)
+        x1.DoIt()
 
 
 
@@ -603,6 +569,7 @@ Public Class Form1
 
     Private Sub ResetToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ResetToolStripMenuItem.Click
         Me.ClonedAndFilteredBlastSearchRecords = Me.OriginalBlastSearchRecords
+
         Tblb1.SetIt(Me.ClonedAndFilteredBlastSearchRecords, Me.DisplayMemberofRecord)
     End Sub
 
@@ -657,52 +624,238 @@ Public Class Form1
     End Sub
 
     Private Sub ByFileToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ByFileToolStripMenuItem.Click
-        Dim res As New Dictionary(Of String, Dictionary(Of String, Integer))
-        Dim AllTaxID As New List(Of String)
-        Dim AllTaxName As New List(Of String)
 
-        For i1 = 0 To Me.ByFiles.Count - 1
-            For Each Item As OwnBlastRecord In ByFiles(i1)
-                If IsNothing(Item.IterationQueryDefinition) = False Then
-                    If res.ContainsKey(Item.IterationQueryDefinition) = False Then res.Add(Item.IterationQueryDefinition, New Dictionary(Of String, Integer))
-                    Dim Name As String = Me.OpenedFiles(i1).Name
-                    For Each oHit In Item.OwnHits
-                        If res(Item.IterationQueryDefinition).ContainsKey(Name) = False Then
-                            res(Item.IterationQueryDefinition).Add(Name, 0)
+
+        Dim AllTaxName = (From x In Me.OpenedFiles Select x.Name).ToList
+
+        Dim Res = Szunyi.BLAST.Analysis.ByFileName(Me.ClonedAndFilteredBlastSearchRecords, AllTaxName)
+
+        Dim Common = Analysis.Get_Common(Res, AllTaxName.Count)
+        Dim Uniques = Analysis.Get_Uniques(Res, AllTaxName.Count)
+        Dim Common_Uniques = Analysis.Get_Common_Uniques(Res, AllTaxName.Count)
+        Dim extHSPs = Szunyi.BLAST.BlastManipulation.Hsp.All(Me.ClonedAndFilteredBlastSearchRecords)
+        If Common_Uniques.Count = 0 Then
+            MsgBox("No any Query")
+        Else
+            Dim ForRetrive As Dictionary(Of String, List(Of String)) =
+            Szunyi.BLAST.Analysis.Get_HitIDs_w_DbFileNames(Me.ClonedAndFilteredBlastSearchRecords, Common_Uniques) ' DB, HitIDs
+
+            Dim t As New Szunyi.IO.FolderSelectDialog()
+            t.Title = ForRetrive.Count & "- e:" & ForRetrive.First.Value.Count
+            Dim ByCDS_NA(ForRetrive.First.Value.Count) As List(Of Bio.ISequence)
+            Dim ByCDS_AA(ForRetrive.First.Value.Count) As List(Of Bio.ISequence)
+            If t.ShowDialog = DialogResult.OK Then
+                Dim log As New System.Text.StringBuilder
+                Dim cDir As New DirectoryInfo(t.FolderNames.First)
+                For Each Item In ForRetrive
+                    Dim Seqs = Szunyi.BLAST.Console.Retrive.GetSeqsFromBlastDatabase(New FileInfo(Item.Key), Item.Value, log, My.Settings.BlastPath)
+                    Dim nFile As New FileInfo(Item.Key)
+                    Dim NA_File = Szunyi.IO.Rename.Append_Before_Extension(nFile, "_NA")
+                    Dim AA_File = Szunyi.IO.Rename.Append_Before_Extension(nFile, "_AA")
+                    Szunyi.IO.Export.Fasta(Seqs, New FileInfo(cDir.FullName & "\" & NA_File.Name))
+                    Szunyi.IO.Export.Fasta(Seqs.TranslateFull(True), AA_File)
+                    For i1 = 0 To Seqs.Count - 1
+                        If IsNothing(ByCDS_NA(i1)) = True Then
+                            ByCDS_NA(i1) = New List(Of Bio.ISequence)
+                            ByCDS_AA(i1) = New List(Of Bio.ISequence)
                         End If
-                        res(Item.IterationQueryDefinition)(Name) += 1
-                        If AllTaxID.Contains(Name) = False Then
-                            AllTaxID.Add(Name)
-                            AllTaxName.Add(Name)
-                        End If
+                        Seqs(i1).ID = Item.Key
+                        ByCDS_NA(i1).Add(Seqs(i1))
+                        ByCDS_AA(i1).Add(Seqs(i1).TranslateFull(True))
                     Next
-                End If
-            Next
-        Next
+                Next
+                For i1 = 0 To ByCDS_NA.Count - 1
+                    Szunyi.IO.Export.Fasta(ByCDS_NA(i1), New FileInfo(cDir.FullName & "\" & i1 & "_NA.fa"))
+                    Szunyi.IO.Export.Fasta(ByCDS_AA(i1), New FileInfo(cDir.FullName & "\" & i1 & "_AA.fa"))
+                Next
+            End If
+
+        End If
 
 
 
-        Dim Log As New System.Text.StringBuilder
-        Log.Append(vbTab)
-        Log.Append(Szunyi.Common.Text.General.GetText(AllTaxName, vbTab)).AppendLine()
-        For Each Item In res
-            Log.Append(Item.Key)
-            Dim c As Integer = 0
-            For Each TaxId In AllTaxID
 
-                If Item.Value.ContainsKey(TaxId) = True Then
-                    Log.Append(vbTab)
-                    Log.Append(Item.Value(TaxId))
-                    c += 1
-                Else
-                    Log.Append(vbTab).Append("0")
-                End If
-            Next
-            Log.Append(vbTab & c)
-            Log.AppendLine()
-        Next
+    End Sub
+    ''' <summary>
+    ''' Pure
+    ''' </summary>
+    ''' <param name="sender"></param>
+    ''' <param name="e"></param>
+    Private Sub FromFilesToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles FromFilesToolStripMenuItem.Click
+        Me.OpenedFiles = Szunyi.IO.Pick_Up.Files(Szunyi.IO.File_Extensions.Blast, "Select Blast Result", New DirectoryInfo(My.Settings.Result)).ToList
+        Dim All_Records = Import_Records()
+        Me.ClonedAndFilteredBlastSearchRecords = Group_Records(All_Records)
+        Me.OriginalBlastSearchRecords = ClonedAndFilteredBlastSearchRecords.Clone
+        Tblb1.SetIt(ClonedAndFilteredBlastSearchRecords, DisplayMemberofRecord)
+
     End Sub
 
+
+
+    ''' <summary>
+    ''' Pure
+    ''' </summary>
+    ''' <param name="sender"></param>
+    ''' <param name="e"></param>
+    Private Sub FromDatabaseToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles FromDatabaseToolStripMenuItem.Click
+        Me.OpenedFiles = Get_DatabaseFiles()
+        Dim All_Records = Import_Records()
+        Me.ClonedAndFilteredBlastSearchRecords = Group_Records(All_Records)
+        Me.OriginalBlastSearchRecords = ClonedAndFilteredBlastSearchRecords.Clone
+        Tblb1.SetIt(ClonedAndFilteredBlastSearchRecords, DisplayMemberofRecord)
+    End Sub
+    ''' <summary>
+    ''' With External IDs
+    ''' </summary>
+    ''' <param name="sender"></param>
+    ''' <param name="e"></param>
+    Private Sub FromFilesToolStripMenuItem1_Click(sender As Object, e As EventArgs) Handles FromFilesToolStripMenuItem1.Click
+        Me.OpenedFiles = Szunyi.IO.Pick_Up.Files(Szunyi.IO.File_Extensions.Blast, "Select Blast Result", New DirectoryInfo(My.Settings.Result)).ToList
+        Dim All_Records = Import_Records()
+        Me.ClonedAndFilteredBlastSearchRecords = Group_Records(All_Records)
+        Me.OriginalBlastSearchRecords = ClonedAndFilteredBlastSearchRecords.Clone
+        Tblb1.SetIt(ClonedAndFilteredBlastSearchRecords, DisplayMemberofRecord)
+    End Sub
+    ''' <summary>
+    ''' With External IDs
+    ''' </summary>
+    ''' <param name="sender"></param>
+    ''' <param name="e"></param>
+    Private Sub FromDatabaseToolStripMenuItem1_Click(sender As Object, e As EventArgs) Handles FromDatabaseToolStripMenuItem1.Click
+        Me.OpenedFiles = Get_DatabaseFiles()
+        Dim All_Records = Import_Records()
+        Me.ClonedAndFilteredBlastSearchRecords = Group_Records(All_Records)
+        Me.OriginalBlastSearchRecords = ClonedAndFilteredBlastSearchRecords.Clone
+        Tblb1.SetIt(ClonedAndFilteredBlastSearchRecords, DisplayMemberofRecord)
+    End Sub
+    Private Function Get_DatabaseFiles() As List(Of FileInfo)
+        Dim All_Result_Files = Szunyi.IO.Get_Files.All(New DirectoryInfo(My.Settings.Result))
+        Dim All_Result_Files_Names = From x1 In All_Result_Files Select x1.Name
+        Dim x As New Szunyi.IO.CheckBoxForStringsFull(All_Result_Files.ToList, -1)
+        If x.ShowDialog = DialogResult.OK Then
+            Return x.SelectedFiles
+        Else
+            Return New List(Of FileInfo)
+        End If
+    End Function
+    Private Function Import_Records() As List(Of OwnBlastRecord)
+        Dim All_record As New List(Of OwnBlastRecord)
+        ClonedAndFilteredBlastSearchRecords.Clear()
+        ByFiles.Clear()
+        Dim log As New System.Text.StringBuilder
+        For Each File In OpenedFiles
+            Dim Records = Szunyi.BLAST.Import.From_File(File, log).ToList
+            ByFiles.Add(Records)
+            All_record.AddRange(Records)
+        Next
+        Return All_record
+    End Function
+    Private Function Group_Records(all_Records As List(Of OwnBlastRecord)) As List(Of OwnBlastRecord)
+        Dim res As New List(Of OwnBlastRecord)
+
+        Dim gr = From x2 In all_Records Group By x2.IterationQueryDefinition Into Group
+
+        For Each g In gr
+            Dim t As OwnBlastRecord
+            Dim cHits As New List(Of Bio.Web.Blast.Hit)
+            For Each item In g.Group
+                If item Is g.Group.First Then
+                    t = item.Clone
+                Else
+                    t.OwnHits.AddRange(item.OwnHits)
+                    cHits.AddRange(item.Hits)
+                End If
+            Next
+            For Each c In cHits
+                t.Hits.Add(c)
+            Next
+            t.IterationQueryDefinition = g.IterationQueryDefinition
+            res.Add(t)
+        Next
+        Return res
+    End Function
+
+    Private Sub dgv1_RowEnter(sender As Object, e As DataGridViewCellEventArgs) Handles dgv1.RowEnter
+        Dim alf As Integer = 43
+        Dim x = dgv1.Rows(e.RowIndex).DataBoundItem
+        Dim br As SolidBrush
+        Select Case x.Score
+            Case Is < 40
+                br = New SolidBrush(Color.Black)
+            Case Is < 50
+                br = New SolidBrush(Color.Blue)
+            Case Is < 80
+                br = New SolidBrush(Color.Green)
+            Case Is < 200
+                br = New SolidBrush(Color.Pink)
+            Case Else
+                br = New SolidBrush(Color.Red)
+        End Select
+        Dim bmp As New Bitmap(pb1.Width, pb1.Height)
+        Dim graphics As Graphics = Graphics.FromImage(bmp)
+
+        Dim Range = x.IterationQueryLength \ pb1.Width
+        If Range = 0 Then
+            Range = pb1.Width \ x.IterationQueryLength
+            Dim x1 As Integer = (x.QueryStart * Range)
+            Dim x2 As Integer = (x.QueryEnd * Range)
+            graphics.DrawLine(New Pen(br, 5), x1, 5, x2, 5)
+        Else
+            Dim x1 As Integer = (x.QueryStart / Range)
+            Dim x2 As Integer = (x.QueryEnd / Range)
+            graphics.DrawLine(New Pen(br, 5), x1, 5, x2, 5)
+        End If
+
+
+        Range = x.Length \ pb1.Width
+        If Range = 0 Then
+            If x.Length > 0 Then
+                Range = pb1.Width \ x.Length
+                Dim x1 As Integer = (x.HitStart * Range)
+                Dim x2 As Integer = (x.HitEnd * Range)
+                graphics.DrawLine(New Pen(br, 5), x1, 15, x2, 15)
+            End If
+
+        Else
+            Dim x1 As Integer = (x.HitStart / Range)
+            Dim x2 As Integer = (x.HitEnd / Range)
+            graphics.DrawLine(New Pen(br, 5), x1, 15, x2, 15)
+        End If
+
+
+        Dim myFont As Font = tbAlignment.Font
+
+        Dim Fs = graphics.MeasureString("a", myFont)
+        DrawTextBox(x, Fs.Width)
+        pb1.Image = bmp
+        graphics.Dispose()
+
+    End Sub
+    Private Sub DrawTextBox(hsp As Object, FontWidth As Double)
+        Dim NofCharPerLine As Integer = (Me.tbAlignment.Width) \ FontWidth
+
+        Dim myFont As Font = tbAlignment.Font
+        Dim graphics As Graphics = tbAlignment.CreateGraphics
+        Dim s As New StringBuilder
+        Do
+            s.Append("a")
+            Dim Fs = graphics.MeasureString(s.ToString, myFont)
+            If Fs.Width > tbAlignment.Width - 10 Then
+                NofCharPerLine = s.Length - 2
+                Exit Do
+            End If
+        Loop
+
+        Dim str As New StringBuilder
+        If IsNothing(hsp.QuerySequence) = True Then Exit Sub
+        For i1 = 0 To hsp.QuerySequence.Length Step NofCharPerLine
+            If i1 + NofCharPerLine > hsp.QuerySequence.Length Then NofCharPerLine = hsp.QuerySequence.Length - i1
+            str.Append(hsp.QuerySequence.Substring(i1, NofCharPerLine)).AppendLine()
+            If IsNothing(hsp.Midline) = False Then str.Append(hsp.Midline.Substring(i1, NofCharPerLine)).AppendLine()
+            str.Append(hsp.HitSequence.Substring(i1, NofCharPerLine)).AppendLine().AppendLine()
+        Next
+        Me.tbAlignment.Text = str.ToString
+    End Sub
 
 
 

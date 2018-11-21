@@ -26,6 +26,11 @@ Partial Class Form1
         Me.MenuStrip1 = New System.Windows.Forms.MenuStrip()
         Me.FileToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ImportToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.FromFilesToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.FromDatabaseToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ImportFromExternalIDsToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.FromFilesToolStripMenuItem1 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.FromDatabaseToolStripMenuItem1 = New System.Windows.Forms.ToolStripMenuItem()
         Me.ExportToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.SequncesToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.QueryToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
@@ -70,16 +75,19 @@ Partial Class Form1
         Me.MathToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.AnalyseToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ByTaxIDToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.SplitContainer1 = New System.Windows.Forms.SplitContainer()
-        Me.dgv1 = New System.Windows.Forms.DataGridView()
-        Me.Tblb1 = New Szunyi.IO.tblb()
-        Me.Tblb2 = New Szunyi.IO.tblb()
         Me.ByFileToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.SplitContainer1 = New System.Windows.Forms.SplitContainer()
+        Me.Tblb1 = New Szunyi.IO.tblb()
+        Me.pb1 = New System.Windows.Forms.PictureBox()
+        Me.dgv1 = New System.Windows.Forms.DataGridView()
+        Me.Tblb2 = New Szunyi.IO.tblb()
+        Me.tbAlignment = New System.Windows.Forms.TextBox()
         Me.MenuStrip1.SuspendLayout()
         CType(Me.SplitContainer1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SplitContainer1.Panel1.SuspendLayout()
         Me.SplitContainer1.Panel2.SuspendLayout()
         Me.SplitContainer1.SuspendLayout()
+        CType(Me.pb1, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.dgv1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
@@ -89,28 +97,60 @@ Partial Class Form1
         Me.MenuStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.FileToolStripMenuItem, Me.BlastToolStripMenuItem, Me.DisplayToolStripMenuItem, Me.FilterToolStripMenuItem, Me.AnalyseToolStripMenuItem})
         Me.MenuStrip1.Location = New System.Drawing.Point(0, 0)
         Me.MenuStrip1.Name = "MenuStrip1"
-        Me.MenuStrip1.Size = New System.Drawing.Size(800, 28)
+        Me.MenuStrip1.Size = New System.Drawing.Size(1400, 28)
         Me.MenuStrip1.TabIndex = 0
         Me.MenuStrip1.Text = "MenuStrip1"
         '
         'FileToolStripMenuItem
         '
-        Me.FileToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ImportToolStripMenuItem, Me.ExportToolStripMenuItem, Me.ImportCompressedToolStripMenuItem})
+        Me.FileToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ImportToolStripMenuItem, Me.ImportFromExternalIDsToolStripMenuItem, Me.ExportToolStripMenuItem, Me.ImportCompressedToolStripMenuItem})
         Me.FileToolStripMenuItem.Name = "FileToolStripMenuItem"
         Me.FileToolStripMenuItem.Size = New System.Drawing.Size(44, 24)
         Me.FileToolStripMenuItem.Text = "File"
         '
         'ImportToolStripMenuItem
         '
+        Me.ImportToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.FromFilesToolStripMenuItem, Me.FromDatabaseToolStripMenuItem})
         Me.ImportToolStripMenuItem.Name = "ImportToolStripMenuItem"
-        Me.ImportToolStripMenuItem.Size = New System.Drawing.Size(216, 26)
+        Me.ImportToolStripMenuItem.Size = New System.Drawing.Size(249, 26)
         Me.ImportToolStripMenuItem.Text = "Import"
+        '
+        'FromFilesToolStripMenuItem
+        '
+        Me.FromFilesToolStripMenuItem.Name = "FromFilesToolStripMenuItem"
+        Me.FromFilesToolStripMenuItem.Size = New System.Drawing.Size(185, 26)
+        Me.FromFilesToolStripMenuItem.Text = "From Files"
+        '
+        'FromDatabaseToolStripMenuItem
+        '
+        Me.FromDatabaseToolStripMenuItem.Name = "FromDatabaseToolStripMenuItem"
+        Me.FromDatabaseToolStripMenuItem.Size = New System.Drawing.Size(185, 26)
+        Me.FromDatabaseToolStripMenuItem.Text = "From Database"
+        '
+        'ImportFromExternalIDsToolStripMenuItem
+        '
+        Me.ImportFromExternalIDsToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.FromFilesToolStripMenuItem1, Me.FromDatabaseToolStripMenuItem1})
+        Me.ImportFromExternalIDsToolStripMenuItem.Name = "ImportFromExternalIDsToolStripMenuItem"
+        Me.ImportFromExternalIDsToolStripMenuItem.Size = New System.Drawing.Size(249, 26)
+        Me.ImportFromExternalIDsToolStripMenuItem.Text = "Import From External IDs"
+        '
+        'FromFilesToolStripMenuItem1
+        '
+        Me.FromFilesToolStripMenuItem1.Name = "FromFilesToolStripMenuItem1"
+        Me.FromFilesToolStripMenuItem1.Size = New System.Drawing.Size(185, 26)
+        Me.FromFilesToolStripMenuItem1.Text = "From Files"
+        '
+        'FromDatabaseToolStripMenuItem1
+        '
+        Me.FromDatabaseToolStripMenuItem1.Name = "FromDatabaseToolStripMenuItem1"
+        Me.FromDatabaseToolStripMenuItem1.Size = New System.Drawing.Size(185, 26)
+        Me.FromDatabaseToolStripMenuItem1.Text = "From Database"
         '
         'ExportToolStripMenuItem
         '
         Me.ExportToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.SequncesToolStripMenuItem, Me.IDsToolStripMenuItem, Me.Gff3ToolStripMenuItem, Me.HitsToolStripMenuItem1, Me.RecordsToolStripMenuItem1})
         Me.ExportToolStripMenuItem.Name = "ExportToolStripMenuItem"
-        Me.ExportToolStripMenuItem.Size = New System.Drawing.Size(216, 26)
+        Me.ExportToolStripMenuItem.Size = New System.Drawing.Size(249, 26)
         Me.ExportToolStripMenuItem.Text = "Export"
         '
         'SequncesToolStripMenuItem
@@ -197,7 +237,7 @@ Partial Class Form1
         'ImportCompressedToolStripMenuItem
         '
         Me.ImportCompressedToolStripMenuItem.Name = "ImportCompressedToolStripMenuItem"
-        Me.ImportCompressedToolStripMenuItem.Size = New System.Drawing.Size(216, 26)
+        Me.ImportCompressedToolStripMenuItem.Size = New System.Drawing.Size(249, 26)
         Me.ImportCompressedToolStripMenuItem.Text = "Import Compressed"
         '
         'BlastToolStripMenuItem
@@ -378,8 +418,14 @@ Partial Class Form1
         'ByTaxIDToolStripMenuItem
         '
         Me.ByTaxIDToolStripMenuItem.Name = "ByTaxIDToolStripMenuItem"
-        Me.ByTaxIDToolStripMenuItem.Size = New System.Drawing.Size(216, 26)
+        Me.ByTaxIDToolStripMenuItem.Size = New System.Drawing.Size(140, 26)
         Me.ByTaxIDToolStripMenuItem.Text = "By TaxID"
+        '
+        'ByFileToolStripMenuItem
+        '
+        Me.ByFileToolStripMenuItem.Name = "ByFileToolStripMenuItem"
+        Me.ByFileToolStripMenuItem.Size = New System.Drawing.Size(140, 26)
+        Me.ByFileToolStripMenuItem.Text = "By File"
         '
         'SplitContainer1
         '
@@ -393,11 +439,34 @@ Partial Class Form1
         '
         'SplitContainer1.Panel2
         '
+        Me.SplitContainer1.Panel2.Controls.Add(Me.tbAlignment)
+        Me.SplitContainer1.Panel2.Controls.Add(Me.pb1)
         Me.SplitContainer1.Panel2.Controls.Add(Me.dgv1)
         Me.SplitContainer1.Panel2.Controls.Add(Me.Tblb2)
-        Me.SplitContainer1.Size = New System.Drawing.Size(800, 422)
-        Me.SplitContainer1.SplitterDistance = 266
+        Me.SplitContainer1.Size = New System.Drawing.Size(1400, 622)
+        Me.SplitContainer1.SplitterDistance = 465
         Me.SplitContainer1.TabIndex = 1
+        '
+        'Tblb1
+        '
+        Me.Tblb1.DisplayMember = Nothing
+        Me.Tblb1.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Tblb1.Location = New System.Drawing.Point(0, 0)
+        Me.Tblb1.Name = "Tblb1"
+        Me.Tblb1.Original = CType(resources.GetObject("Tblb1.Original"), System.Collections.Generic.List(Of Object))
+        Me.Tblb1.Selected = CType(resources.GetObject("Tblb1.Selected"), System.Collections.Generic.List(Of Object))
+        Me.Tblb1.SelItem = Nothing
+        Me.Tblb1.Size = New System.Drawing.Size(465, 622)
+        Me.Tblb1.TabIndex = 0
+        '
+        'pb1
+        '
+        Me.pb1.Dock = System.Windows.Forms.DockStyle.Top
+        Me.pb1.Location = New System.Drawing.Point(206, 353)
+        Me.pb1.Name = "pb1"
+        Me.pb1.Size = New System.Drawing.Size(725, 90)
+        Me.pb1.TabIndex = 2
+        Me.pb1.TabStop = False
         '
         'dgv1
         '
@@ -409,20 +478,8 @@ Partial Class Form1
         Me.dgv1.Name = "dgv1"
         Me.dgv1.ReadOnly = True
         Me.dgv1.RowTemplate.Height = 24
-        Me.dgv1.Size = New System.Drawing.Size(324, 353)
+        Me.dgv1.Size = New System.Drawing.Size(725, 353)
         Me.dgv1.TabIndex = 1
-        '
-        'Tblb1
-        '
-        Me.Tblb1.DisplayMember = Nothing
-        Me.Tblb1.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Tblb1.Location = New System.Drawing.Point(0, 0)
-        Me.Tblb1.Name = "Tblb1"
-        Me.Tblb1.Original = CType(resources.GetObject("Tblb1.Original"), System.Collections.Generic.List(Of Object))
-        Me.Tblb1.Selected = CType(resources.GetObject("Tblb1.Selected"), System.Collections.Generic.List(Of Object))
-        Me.Tblb1.SelItem = Nothing
-        Me.Tblb1.Size = New System.Drawing.Size(266, 422)
-        Me.Tblb1.TabIndex = 0
         '
         'Tblb2
         '
@@ -433,20 +490,25 @@ Partial Class Form1
         Me.Tblb2.Original = CType(resources.GetObject("Tblb2.Original"), System.Collections.Generic.List(Of Object))
         Me.Tblb2.Selected = CType(resources.GetObject("Tblb2.Selected"), System.Collections.Generic.List(Of Object))
         Me.Tblb2.SelItem = Nothing
-        Me.Tblb2.Size = New System.Drawing.Size(206, 422)
+        Me.Tblb2.Size = New System.Drawing.Size(206, 622)
         Me.Tblb2.TabIndex = 0
         '
-        'ByFileToolStripMenuItem
+        'tbAlignment
         '
-        Me.ByFileToolStripMenuItem.Name = "ByFileToolStripMenuItem"
-        Me.ByFileToolStripMenuItem.Size = New System.Drawing.Size(216, 26)
-        Me.ByFileToolStripMenuItem.Text = "By File"
+        Me.tbAlignment.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.tbAlignment.Font = New System.Drawing.Font("Courier New", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(238, Byte))
+        Me.tbAlignment.Location = New System.Drawing.Point(206, 443)
+        Me.tbAlignment.Multiline = True
+        Me.tbAlignment.Name = "tbAlignment"
+        Me.tbAlignment.ScrollBars = System.Windows.Forms.ScrollBars.Horizontal
+        Me.tbAlignment.Size = New System.Drawing.Size(725, 179)
+        Me.tbAlignment.TabIndex = 3
         '
         'Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(800, 450)
+        Me.ClientSize = New System.Drawing.Size(1400, 650)
         Me.Controls.Add(Me.SplitContainer1)
         Me.Controls.Add(Me.MenuStrip1)
         Me.MainMenuStrip = Me.MenuStrip1
@@ -456,8 +518,10 @@ Partial Class Form1
         Me.MenuStrip1.PerformLayout()
         Me.SplitContainer1.Panel1.ResumeLayout(False)
         Me.SplitContainer1.Panel2.ResumeLayout(False)
+        Me.SplitContainer1.Panel2.PerformLayout()
         CType(Me.SplitContainer1, System.ComponentModel.ISupportInitialize).EndInit()
         Me.SplitContainer1.ResumeLayout(False)
+        CType(Me.pb1, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.dgv1, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
@@ -516,4 +580,11 @@ Partial Class Form1
     Friend WithEvents ByTaxIDToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents ImportCompressedToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents ByFileToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents ImportFromExternalIDsToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents FromFilesToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents FromDatabaseToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents FromFilesToolStripMenuItem1 As ToolStripMenuItem
+    Friend WithEvents FromDatabaseToolStripMenuItem1 As ToolStripMenuItem
+    Friend WithEvents pb1 As PictureBox
+    Friend WithEvents tbAlignment As TextBox
 End Class

@@ -104,12 +104,12 @@ Public Class MathEvalution
 
         Select Case sender.Text
             Case "Load"
-                Dim File = Szunyi.IO.Pick_Up.File(Szunyi.IO.File_Extensions.Filter)
+                Dim File = Szunyi.IO.Pick_Up.File(Szunyi.IO.File_Extensions.Filter, "Select Filter File", New System.IO.DirectoryInfo(My.Settings.Filter))
                 If IsNothing(File) = False Then
                     RichTextBox1.Text = Szunyi.IO.Import.Text.Full(File)
                 End If
             Case "Save"
-                Dim File = Szunyi.IO.Export.File_To_Save(Szunyi.IO.File_Extensions.Filter)
+                Dim File = Szunyi.IO.Export.File_To_Save(Szunyi.IO.File_Extensions.Filter, New System.IO.DirectoryInfo(My.Settings.Filter))
                 If IsNothing(File) = False Then
                     Szunyi.IO.Export.Text(RichTextBox1.Text, File)
                 End If
@@ -127,7 +127,7 @@ Public Class MathEvalution
                     End If
                     Index += 1
                 Next
-                Szunyi.BLAST.Filter.HSP.Clear(cOwnRecords)
+                Me.cOwnRecords = Szunyi.BLAST.Filter.HSP.Clear(cOwnRecords)
                 Dim kj = "True:" & Index - Removed & vbCrLf & "False:" & Removed
                 MsgBox(kj)
                 Me.DialogResult = DialogResult.OK
@@ -155,7 +155,7 @@ Public Class MathEvalution
     End Sub
 
     Private Iterator Function Calculate(arguments As Dictionary(Of String, Own_Argument)) As IEnumerable(Of Double)
-        Dim tmp = RichTextBox1.Text.Replace("(", "( ").Replace(")", ") ")
+        Dim tmp = RichTextBox1.Text.Replace("(", " ( ").Replace(")", " ) ")
         Dim s = Split(tmp, " ")
         Dim txt = Szunyi.Common.Text.General.GetText(s, " ").Trim()
         Dim x As New Expression(txt)
@@ -215,7 +215,8 @@ Public Class MathEvalution
         RichTextBox1.SelectionStart = RichTextBox1.Text.Length - 1
     End Sub
     Sub Log_Op(sender As ToolStripButton, e As EventArgs)
-        RichTextBox1.Text = "(" & RichTextBox1.Text & ") " & sender.Text & " ("
+        Dim t As LogicalOperator = sender.Tag
+        RichTextBox1.Text = "( " & RichTextBox1.Text & " ) " & t.Symbol & " ( "
 
     End Sub
     Sub Bin_Op(sender As ToolStripButton, e As EventArgs)

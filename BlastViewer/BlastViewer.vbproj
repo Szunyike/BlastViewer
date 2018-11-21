@@ -177,6 +177,10 @@
       <Project>{e7756283-90b7-4450-a131-b7372f915532}</Project>
       <Name>Szunyi.Math</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Szunyi.Sequences\Szunyi.Sequences\Szunyi.Sequences.vbproj">
+      <Project>{b4503b4b-25d2-4580-84b8-febd08b9af11}</Project>
+      <Name>Szunyi.Sequences</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
 </Project>

@@ -15,6 +15,8 @@ Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Szunyi.Math", "..\Szunyi.Ma
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Szunyi.Features", "..\Szunyi.Features\Szunyi.Features\Szunyi.Features.vbproj", "{5FFC728C-F2BB-48DE-BCD4-BB25F860BFDD}"
 EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Szunyi.Sequences", "..\Szunyi.Sequences\Szunyi.Sequences\Szunyi.Sequences.vbproj", "{B4503B4B-25D2-4580-84B8-FEBD08B9AF11}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{5FFC728C-F2BB-48DE-BCD4-BB25F860BFDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5FFC728C-F2BB-48DE-BCD4-BB25F860BFDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5FFC728C-F2BB-48DE-BCD4-BB25F860BFDD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B4503B4B-25D2-4580-84B8-FEBD08B9AF11}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B4503B4B-25D2-4580-84B8-FEBD08B9AF11}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4503B4B-25D2-4580-84B8-FEBD08B9AF11}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B4503B4B-25D2-4580-84B8-FEBD08B9AF11}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
