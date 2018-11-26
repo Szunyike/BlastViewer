@@ -40,9 +40,8 @@ Public Class Form1
         OpenedFiles = Files
         ClonedAndFilteredBlastSearchRecords.Clear()
         For Each File In Files
-            Dim Records = Szunyi.BLAST.Import.From_File(File, log, True).ToList
-            ByFiles.Add(Records)
-            ClonedAndFilteredBlastSearchRecords.AddRange(Records)
+            Dim x As New Szunyi.BLAST.Compressed.Common(File)
+
         Next
         Me.OriginalBlastSearchRecords = ClonedAndFilteredBlastSearchRecords.Clone
         Tblb1.SetIt(ClonedAndFilteredBlastSearchRecords, DisplayMemberofRecord)
