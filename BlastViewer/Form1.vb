@@ -10,6 +10,8 @@ Imports System.Linq.Dynamic.Core
 Imports System.Text
 Imports Bio.IO.GenBank
 Imports Szunyi.Features.Extensions
+Imports Szunyi.Common.Extensions
+
 'Imports System.Linq.Dynamic
 
 
@@ -181,7 +183,7 @@ Public Class Form1
         Dim var = From x In HSPs Select x.Record.Hits
 
         Dim profiles = HSPs.AsQueryable()
-        Dim sg = Szunyi.Common.Text.General.GetText(Me.DisplayMembersAll, ",")
+        Dim sg = Me.DisplayMembersAll.GetText(",")
         If sg <> "" Then
             Try
                 Dim var1 = profiles.Select("new(" & sg & ")")
@@ -237,7 +239,7 @@ Public Class Form1
         Dim var = From x In HSPs Select x.Record.Hits
 
         Dim profiles = HSPs.AsQueryable()
-        Dim sg = Szunyi.Common.Text.General.GetText(Me.DisplayMembersAll, ",")
+        Dim sg = Me.DisplayMembersAll.GetText(",")
         If sg <> "" Then
             Try
                 Dim var1 = profiles.Select("new(" & sg & ")")
@@ -313,8 +315,7 @@ Public Class Form1
                             ls.Add(Seq.Strain)
                             ls.Add(Seq.Accesion)
 
-                            Dim SOurce = Seq.Source
-                            Tax_Writter.Write(Szunyi.Common.Text.General.GetText(ls, vbTab) & vbCrLf, False)
+                            Tax_Writter.Write(ls.GetText & vbCrLf, False)
 
                             For Each CDS In Szunyi.Features.Keys.Get(Seq, StandardFeatureKeys.CodingSequence)
                                 Index += 1
@@ -322,7 +323,7 @@ Public Class Form1
                                 If CDS.Location.IsComplementer = True Then NA = NA.GetReversedSequence
                                 NA.ID = Szunyi.Features.Common.GetName(CDS).First.Replace(Chr(34), "").Replace(".", "_") & "_" & Index
 
-                                Dim AA = Szunyi.Sequences.Translate.TranaslateSeq(NA)
+                                Dim AA = NA.Translate
                                 AA.ID = NA.ID
                                 x_NA.Write(NA)
                                 x_AA.Write(AA)
@@ -493,7 +494,7 @@ Public Class Form1
                     Dim t1 As New CheckBoxForStringsFull(Quals.ToList, -1, "Select Qulifiers", Quals.ToList)
 
                     If t1.ShowDialog = DialogResult.OK Then
-                        q = Szunyi.Common.Text.General.GetText(t1.SelectedStrings, " ")
+                        q = t1.SelectedStrings.GetText(" ")
                     End If
                 End If
                 Dim x As New Szunyi.BLAST.Console.DoBlast(QueryFiles,
@@ -599,7 +600,7 @@ Public Class Form1
         Dim x As New Szunyi.IO.CheckBoxForStringsFull(Values, -1, "Set export member of Record", "IterationQueryDefinition")
         If x.ShowDialog = DialogResult.OK Then
             Dim Filtered As New List(Of String)
-            Dim Header = Szunyi.Common.Text.General.GetText(x.SelectedStrings, vbTab)
+            Dim Header = x.SelectedStrings.GetText(vbTab)
             Filtered.Add(Header)
             Dim Types = Szunyi.Common.Util_Helpers.Get_Enums(Of Szunyi.BLAST.Enums.Record)(x.SelectedStrings)
             '   Filtered.AddRange(Szunyi.BLAST.BlastManipulation.Record.Custom(Me.ClonedAndFilteredBlastSearchRecords, Types))
@@ -645,7 +646,7 @@ Public Class Form1
         Next
         Dim Log As New System.Text.StringBuilder
         Log.Append(vbTab)
-        Log.Append(Szunyi.Common.Text.General.GetText(AllTaxName, vbTab))
+        Log.Append(AllTaxName.GetText)
         For Each Item In res
             Log.Append(Item.Key)
             Dim c As Integer = 0

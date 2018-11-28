@@ -3,6 +3,8 @@ Imports Szunyi.BLAST.Enums
 Imports org.mariuszgromada.math.mxparser
 Imports System.Text.RegularExpressions
 Imports Szunyi.Math
+Imports Szunyi.Common.Extensions
+
 
 Public Class MathEvalution
 
@@ -157,7 +159,7 @@ Public Class MathEvalution
     Private Iterator Function Calculate(arguments As Dictionary(Of String, Own_Argument)) As IEnumerable(Of Double)
         Dim tmp = RichTextBox1.Text.Replace("(", " ( ").Replace(")", " ) ")
         Dim s = Split(tmp, " ")
-        Dim txt = Szunyi.Common.Text.General.GetText(s, " ").Trim()
+        Dim txt = s.gettext(" ").Trim()
         Dim x As New Expression(txt)
         For Each a In arguments
             x.addArguments(a.Value.Arg)
