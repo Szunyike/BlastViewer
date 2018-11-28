@@ -8,6 +8,8 @@ Imports Szunyi.Common
 Imports Szunyi.Sequences.Extensions
 Imports System.Linq.Dynamic.Core
 Imports System.Text
+Imports Bio.IO.GenBank
+Imports Szunyi.Features.Extensions
 'Imports System.Linq.Dynamic
 
 
@@ -292,6 +294,49 @@ Public Class Form1
 #End Region
 #Region "DoBlast"
 #Region "MenuItems"
+    Private Sub FromGenBanksCDSToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles FromGenBanksCDSToolStripMenuItem.Click
+        Dim Files = Szunyi.IO.Pick_Up.GenBank
+        Dim Title = InputBox("Enter Database Title")
+        If Title = "" Then Exit Sub
+
+        Dim str As New System.Text.StringBuilder
+        Using Tax_Writter As New Szunyi.IO.Export.Text_Exporter(New FileInfo(My.Settings.Tax & Title & ".txt"))
+            Using x_NA As New Szunyi.IO.Export.Fasta_Exporter(New FileInfo(My.Settings.Fasta & Title & "_NA.fa"))
+                Using x_AA As New Szunyi.IO.Export.Fasta_Exporter(New FileInfo(My.Settings.Fasta & Title & "_AA.fa"))
+                    Dim Index As Integer = 0
+                    For Each File In Files
+                        For Each Seq In Szunyi.IO.Import.Sequences.Parse(Files)
+                            Dim ls As New List(Of String) ' FileFullName,CommonName,Strain,Accession (SeqID),Length
+                            ls.Add(File.FullName)
+                            ls.Add(Seq.taxid)
+                            ls.Add(Seq.CommonName)
+                            ls.Add(Seq.Strain)
+                            ls.Add(Seq.Accesion)
+
+                            Dim SOurce = Seq.Source
+                            Tax_Writter.Write(Szunyi.Common.Text.General.GetText(ls, vbTab) & vbCrLf, False)
+
+                            For Each CDS In Szunyi.Features.Keys.Get(Seq, StandardFeatureKeys.CodingSequence)
+                                Index += 1
+                                Dim NA = CDS.GetSubSequence(Seq)
+                                If CDS.Location.IsComplementer = True Then NA = NA.GetReversedSequence
+                                NA.ID = Szunyi.Features.Common.GetName(CDS).First.Replace(Chr(34), "").Replace(".", "_") & "_" & Index
+
+                                Dim AA = Szunyi.Sequences.Translate.TranaslateSeq(NA)
+                                AA.ID = NA.ID
+                                x_NA.Write(NA)
+                                x_AA.Write(AA)
+
+                                Tax_Writter.Write(Seq.ID & vbTab & vbCrLf, False)
+                            Next
+                        Next
+                    Next
+                End Using
+            End Using
+
+        End Using
+    End Sub
+
     Private Sub FromMixedGenBanksToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles FromMixedGenBanksToolStripMenuItem.Click
         Dim Files = Szunyi.IO.Pick_Up.GenBank
         Dim Title = InputBox("Enter Database Title")
@@ -299,13 +344,11 @@ Public Class Form1
         Dim nFile As New FileInfo(My.Settings.Fasta & Title & ".fa")
         Dim str As New System.Text.StringBuilder
         Using x As New Szunyi.IO.Export.Fasta_Exporter(nFile)
-
             Dim isNucle As Boolean = True
             For Each Seq In Szunyi.IO.Import.Sequences.Parse(Files)
                 x.Write(Seq)
-                str.Append(Seq.ID).Append(vbTab).Append(Szunyi.Features.GenBankMetaDataManipulation.Get_TaxID(Seq)).AppendLine()
-                Dim MolType = Szunyi.Features.GenBankMetaDataManipulation.Get_Mol_Type(Seq)
-
+                str.Append(Seq.ID).Append(vbTab).Append(Seq.TaxId).AppendLine()
+                Dim MolType = Seq.MoleculeType
                 If MolType = Bio.IO.GenBank.MoleculeType.Protein Then isNucle = False
             Next
         End Using
@@ -331,11 +374,11 @@ Public Class Form1
 
             Dim Seqs = Szunyi.IO.Import.Sequences.Parse(File).ToList
 
-            Dim Common_Name = Szunyi.Features.GenBankMetaDataManipulation.Get_Common_Name(Seqs.First).Replace(" ", "_")
-            Dim TaxID = Szunyi.Features.GenBankMetaDataManipulation.Get_TaxID(Seqs.First)
+            Dim Common_Name = (Seqs.First).CommonName.Replace(" ", "_")
+            Dim TaxID = Seqs.First.TaxId
             Dim nnFile = Szunyi.IO.Rename.Append_First(nFIle, TaxID & "_" & Common_Name)
             Szunyi.IO.Export.Fasta(Seqs, nnFile)
-            Dim MolType = Szunyi.Features.GenBankMetaDataManipulation.Get_Mol_Type(Seqs.First)
+            Dim MolType = Seqs.First.MoleculeType
             Dim isNucle As Boolean = True
             If MolType = Bio.IO.GenBank.MoleculeType.Protein Then isNucle = False
             Dim x As New Szunyi.BLAST.Console.CreateDatabase(nnFile,
@@ -606,11 +649,11 @@ Public Class Form1
         For Each Item In res
             Log.Append(Item.Key)
             Dim c As Integer = 0
-            For Each TaxId In AllTaxID
+            For Each cTaxId In AllTaxID
 
-                If Item.Value.ContainsKey(TaxId) = True Then
+                If Item.Value.ContainsKey(cTaxId) = True Then
                     Log.Append(vbTab)
-                    Log.Append(Item.Value(TaxId))
+                    Log.Append(Item.Value(cTaxId))
                     c += 1
                 Else
                     Log.Append(vbTab).Append("0")
@@ -856,8 +899,26 @@ Public Class Form1
         Me.tbAlignment.Text = str.ToString
     End Sub
 
+    Private Sub TableToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles TableToolStripMenuItem.Click
+        Dim Files = Szunyi.IO.Pick_Up.GenBank.ToList
+        Dim Seqs = Szunyi.IO.Import.Sequences.Parse(Files).ToList
+        If Seqs.Count = 0 Then Exit Sub
+        Dim str As New System.Text.StringBuilder
+        For Each Seq In Seqs
+            str.Append(Seq.Convert_To5table).AppendLine()
+        Next
+        For Each Seq In Seqs
+            For Each Intron In Seq.Get_Introns
+                If Intron.IsIntronGTAT(Seq) = True Then
 
-
+                    Dim kj As Int16 = 54
+                End If
+            Next
+        Next
+            str.Length -= 2
+        Clipboard.SetText(str.ToString)
+        Szunyi.IO.Export.Text(str.ToString)
+    End Sub
 
 #End Region
 End Class

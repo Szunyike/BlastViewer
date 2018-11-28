@@ -53,6 +53,7 @@ Partial Class Form1
         Me.NucleotideToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.FromGenBankToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.FromMixedGenBanksToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.FromGenBanksCDSToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.SetBlastPathsToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.SetExecutableFolderToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.SetWorkingDirectoryToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
@@ -78,10 +79,12 @@ Partial Class Form1
         Me.ByFileToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.SplitContainer1 = New System.Windows.Forms.SplitContainer()
         Me.Tblb1 = New Szunyi.IO.tblb()
+        Me.tbAlignment = New System.Windows.Forms.TextBox()
         Me.pb1 = New System.Windows.Forms.PictureBox()
         Me.dgv1 = New System.Windows.Forms.DataGridView()
         Me.Tblb2 = New Szunyi.IO.tblb()
-        Me.tbAlignment = New System.Windows.Forms.TextBox()
+        Me.ExtraToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.TableToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.MenuStrip1.SuspendLayout()
         CType(Me.SplitContainer1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SplitContainer1.Panel1.SuspendLayout()
@@ -94,7 +97,7 @@ Partial Class Form1
         'MenuStrip1
         '
         Me.MenuStrip1.ImageScalingSize = New System.Drawing.Size(20, 20)
-        Me.MenuStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.FileToolStripMenuItem, Me.BlastToolStripMenuItem, Me.DisplayToolStripMenuItem, Me.FilterToolStripMenuItem, Me.AnalyseToolStripMenuItem})
+        Me.MenuStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.FileToolStripMenuItem, Me.BlastToolStripMenuItem, Me.DisplayToolStripMenuItem, Me.FilterToolStripMenuItem, Me.AnalyseToolStripMenuItem, Me.ExtraToolStripMenuItem})
         Me.MenuStrip1.Location = New System.Drawing.Point(0, 0)
         Me.MenuStrip1.Name = "MenuStrip1"
         Me.MenuStrip1.Size = New System.Drawing.Size(1400, 28)
@@ -249,7 +252,7 @@ Partial Class Form1
         '
         'CreateDatabaseToolStripMenuItem
         '
-        Me.CreateDatabaseToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.OneByOneToolStripMenuItem, Me.FromGenBankToolStripMenuItem, Me.FromMixedGenBanksToolStripMenuItem})
+        Me.CreateDatabaseToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.OneByOneToolStripMenuItem, Me.FromGenBankToolStripMenuItem, Me.FromMixedGenBanksToolStripMenuItem, Me.FromGenBanksCDSToolStripMenuItem})
         Me.CreateDatabaseToolStripMenuItem.Name = "CreateDatabaseToolStripMenuItem"
         Me.CreateDatabaseToolStripMenuItem.Size = New System.Drawing.Size(288, 26)
         Me.CreateDatabaseToolStripMenuItem.Text = "Create Database"
@@ -284,6 +287,12 @@ Partial Class Form1
         Me.FromMixedGenBanksToolStripMenuItem.Name = "FromMixedGenBanksToolStripMenuItem"
         Me.FromMixedGenBanksToolStripMenuItem.Size = New System.Drawing.Size(231, 26)
         Me.FromMixedGenBanksToolStripMenuItem.Text = "From Mixed GenBanks"
+        '
+        'FromGenBanksCDSToolStripMenuItem
+        '
+        Me.FromGenBanksCDSToolStripMenuItem.Name = "FromGenBanksCDSToolStripMenuItem"
+        Me.FromGenBanksCDSToolStripMenuItem.Size = New System.Drawing.Size(231, 26)
+        Me.FromGenBanksCDSToolStripMenuItem.Text = "From GenBanks CDS"
         '
         'SetBlastPathsToolStripMenuItem
         '
@@ -459,6 +468,17 @@ Partial Class Form1
         Me.Tblb1.Size = New System.Drawing.Size(465, 622)
         Me.Tblb1.TabIndex = 0
         '
+        'tbAlignment
+        '
+        Me.tbAlignment.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.tbAlignment.Font = New System.Drawing.Font("Courier New", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(238, Byte))
+        Me.tbAlignment.Location = New System.Drawing.Point(206, 443)
+        Me.tbAlignment.Multiline = True
+        Me.tbAlignment.Name = "tbAlignment"
+        Me.tbAlignment.ScrollBars = System.Windows.Forms.ScrollBars.Horizontal
+        Me.tbAlignment.Size = New System.Drawing.Size(725, 179)
+        Me.tbAlignment.TabIndex = 3
+        '
         'pb1
         '
         Me.pb1.Dock = System.Windows.Forms.DockStyle.Top
@@ -493,16 +513,18 @@ Partial Class Form1
         Me.Tblb2.Size = New System.Drawing.Size(206, 622)
         Me.Tblb2.TabIndex = 0
         '
-        'tbAlignment
+        'ExtraToolStripMenuItem
         '
-        Me.tbAlignment.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.tbAlignment.Font = New System.Drawing.Font("Courier New", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(238, Byte))
-        Me.tbAlignment.Location = New System.Drawing.Point(206, 443)
-        Me.tbAlignment.Multiline = True
-        Me.tbAlignment.Name = "tbAlignment"
-        Me.tbAlignment.ScrollBars = System.Windows.Forms.ScrollBars.Horizontal
-        Me.tbAlignment.Size = New System.Drawing.Size(725, 179)
-        Me.tbAlignment.TabIndex = 3
+        Me.ExtraToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.TableToolStripMenuItem})
+        Me.ExtraToolStripMenuItem.Name = "ExtraToolStripMenuItem"
+        Me.ExtraToolStripMenuItem.Size = New System.Drawing.Size(54, 24)
+        Me.ExtraToolStripMenuItem.Text = "Extra"
+        '
+        'TableToolStripMenuItem
+        '
+        Me.TableToolStripMenuItem.Name = "TableToolStripMenuItem"
+        Me.TableToolStripMenuItem.Size = New System.Drawing.Size(216, 26)
+        Me.TableToolStripMenuItem.Text = "5Table"
         '
         'Form1
         '
@@ -587,4 +609,7 @@ Partial Class Form1
     Friend WithEvents FromDatabaseToolStripMenuItem1 As ToolStripMenuItem
     Friend WithEvents pb1 As PictureBox
     Friend WithEvents tbAlignment As TextBox
+    Friend WithEvents FromGenBanksCDSToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents ExtraToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents TableToolStripMenuItem As ToolStripMenuItem
 End Class
