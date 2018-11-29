@@ -241,16 +241,16 @@ Public Class MathEvalution
     Private Iterator Function Get_Matches_Aggregates() As IEnumerable(Of match)
 
 
-        For Each e In Szunyi.Common.RegExp.Get_Matches(RichTextBox1.Text, "Average\[[A-Z\s_]{1,45}\]")
+        For Each e In RichTextBox1.Text.Matches("Average\[[A-Z\s_]{1,45}\]")
             Yield e
         Next
-        For Each e In Szunyi.Common.RegExp.Get_Matches(RichTextBox1.Text, "Sum\[[A-Z\s_]{1,45}\]")
+        For Each e In RichTextBox1.Text.Matches("Sum\[[A-Z\s_]{1,45}\]")
             Yield e
         Next
-        For Each e In Szunyi.Common.RegExp.Get_Matches(RichTextBox1.Text, "Minimum value\[[A-Z\s_]{1,45}\]")
+        For Each e In RichTextBox1.Text.Matches("Minimum value\[[A-Z\s_]{1,45}\]")
             Yield e
         Next
-        For Each e In Szunyi.Common.RegExp.Get_Matches(RichTextBox1.Text, "Maximum value\[[A-Z\s_]{1,45}\]")
+        For Each e In RichTextBox1.Text.Matches("Maximum value\[[A-Z\s_]{1,45}\]")
             Yield e
         Next
 

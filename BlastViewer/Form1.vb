@@ -142,7 +142,6 @@ Public Class Form1
     End Sub
 
 
-
 #Region "Display"
     Private Sub SetDisplayMemberOfRecordToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SetDisplayMemberOfRecordToolStripMenuItem.Click
         Dim Values = Szunyi.IO.Util_Helpers.Get_All_Enum_Names(Of Szunyi.BLAST.Enums.Record)(Szunyi.BLAST.Enums.Record.IterationMessage)
@@ -163,11 +162,11 @@ Public Class Form1
 
     Private Sub SetHSPsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SetHSPsToolStripMenuItem.Click
         Dim Values = Szunyi.IO.Util_Helpers.Get_All_Enum_Names(Of Szunyi.BLAST.Enums.Record)(Szunyi.BLAST.Enums.Record.IterationMessage)
-        Dim Records = Szunyi.Common.Text.Lists.Insert_Text_in_Every_LineStarts(Values.ToList, "Record.")
+        Dim Records = Values.InsertBefore("Record.").ToList
         Values = Szunyi.IO.Util_Helpers.Get_All_Enum_Names(Of Szunyi.BLAST.Enums.Hit)(Szunyi.BLAST.Enums.Hit.Accession)
-        Records.AddRange(Szunyi.Common.Text.Lists.Insert_Text_in_Every_LineStarts(Values.ToList, "Hit."))
+        Records.AddRange(Values.InsertBefore("Hit."))
         Values = Szunyi.IO.Util_Helpers.Get_All_Enum_Names(Of Szunyi.BLAST.Enums.Hsp)(Szunyi.BLAST.Enums.Hsp.AlignmentLength)
-        Records.AddRange(Szunyi.Common.Text.Lists.Insert_Text_in_Every_LineStarts(Values.ToList, "Hsp."))
+        Records.AddRange(Values.InsertBefore("Hsp."))
 
         Dim x As New Szunyi.IO.CheckBoxForStringsFull(Records, -1, "Set Display member of Record", Me.DisplayMembersAll)
         If x.ShowDialog = DialogResult.OK Then
@@ -317,11 +316,11 @@ Public Class Form1
 
                             Tax_Writter.Write(ls.GetText & vbCrLf, False)
 
-                            For Each CDS In Szunyi.Features.Keys.Get(Seq, StandardFeatureKeys.CodingSequence)
+                            For Each CDS In Seq.Get_Features(StandardFeatureKeys.CodingSequence)
                                 Index += 1
                                 Dim NA = CDS.GetSubSequence(Seq)
                                 If CDS.Location.IsComplementer = True Then NA = NA.GetReversedSequence
-                                NA.ID = Szunyi.Features.Common.GetName(CDS).First.Replace(Chr(34), "").Replace(".", "_") & "_" & Index
+                                NA.ID = CDS.CommonName & "_" & Index
 
                                 Dim AA = NA.Translate
                                 AA.ID = NA.ID
