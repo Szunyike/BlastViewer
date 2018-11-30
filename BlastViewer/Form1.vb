@@ -920,5 +920,48 @@ Public Class Form1
         Szunyi.IO.Export.Text(str.ToString)
     End Sub
 
+    Private Sub SplitByHitToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SplitByHitToolStripMenuItem.Click
+        Dim log As New System.Text.StringBuilder
+
+        Dim OutDir = Szunyi.IO.Pick_Up.Directory
+        Dim t As New Bio.Sequence(Bio.Alphabets.DNA, "T")
+        For Each File In Get_DatabaseFiles()
+            Dim Exps As New Dictionary(Of String, List(Of Bio.ISequence))
+            Dim OriginalFastaFile = File.QueryFastaFile(My.Settings.Fasta)
+            Dim Seqs = Szunyi.IO.Import.Sequences.Parse(OriginalFastaFile).ToList
+            Dim c As New Szunyi.Sequences.Sorters.ByID
+            Seqs.Sort(c)
+
+            If IsNothing(OriginalFastaFile) = False Then
+                For Each record In Szunyi.BLAST.Import.From_File(File, log)
+                    For Each ExtHSP In record.ToExtHsps
+                        If Exps.ContainsKey(ExtHSP.Hit.Id) = False Then Exps.Add(ExtHSP.Hit.Id, New List(Of Bio.ISequence))
+
+                        t.ID = ExtHSP.Record.IterationQueryDefinition
+                        Dim x = Seqs.SearchByID(t)
+                        If IsNothing(x) = False Then
+                            Exps(ExtHSP.Hit.Id).Add(x)
+                        Else
+                            log.Append(ExtHSP.Record.IterationQueryDefinition).AppendLine()
+                        End If
+                    Next
+                Next
+                Dim AllSeqs As New List(Of Bio.ISequence)
+                For Each Item In Exps
+                    AllSeqs.AddRange(Item.Value)
+                    Dim OneCopy = Item.Value.OneCopyBy_ID
+                    Dim Duplicates = Item.Value.DuplicatesBy_ID
+                    Szunyi.IO.Export.Fasta(OneCopy, New FileInfo(OutDir.FullName & "\" & File.Name & "," & Item.Key & "_Unique.fa"))
+                    Szunyi.IO.Export.Fasta(Duplicates.Firsts, New FileInfo(OutDir.FullName & "\" & File.Name & "," & Item.Key & "_Duplicate.fa"))
+                Next
+                AllSeqs.Sort(c)
+                Dim NotFounded = Seqs.Distinct_ByID(AllSeqs)
+                Szunyi.IO.Export.Fasta(NotFounded, New FileInfo(OutDir.FullName & "\" & File.Name & "_NotFounded.fa"))
+            End If
+
+        Next
+
+    End Sub
+
 #End Region
 End Class

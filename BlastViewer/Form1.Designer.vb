@@ -77,14 +77,15 @@ Partial Class Form1
         Me.AnalyseToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ByTaxIDToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ByFileToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ExtraToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.TableToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.SplitContainer1 = New System.Windows.Forms.SplitContainer()
-        Me.Tblb1 = New Szunyi.IO.tblb()
         Me.tbAlignment = New System.Windows.Forms.TextBox()
         Me.pb1 = New System.Windows.Forms.PictureBox()
         Me.dgv1 = New System.Windows.Forms.DataGridView()
+        Me.Tblb1 = New Szunyi.IO.tblb()
         Me.Tblb2 = New Szunyi.IO.tblb()
-        Me.ExtraToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.TableToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.SplitByHitToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.MenuStrip1.SuspendLayout()
         CType(Me.SplitContainer1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SplitContainer1.Panel1.SuspendLayout()
@@ -121,13 +122,13 @@ Partial Class Form1
         'FromFilesToolStripMenuItem
         '
         Me.FromFilesToolStripMenuItem.Name = "FromFilesToolStripMenuItem"
-        Me.FromFilesToolStripMenuItem.Size = New System.Drawing.Size(185, 26)
+        Me.FromFilesToolStripMenuItem.Size = New System.Drawing.Size(216, 26)
         Me.FromFilesToolStripMenuItem.Text = "From Files"
         '
         'FromDatabaseToolStripMenuItem
         '
         Me.FromDatabaseToolStripMenuItem.Name = "FromDatabaseToolStripMenuItem"
-        Me.FromDatabaseToolStripMenuItem.Size = New System.Drawing.Size(185, 26)
+        Me.FromDatabaseToolStripMenuItem.Size = New System.Drawing.Size(216, 26)
         Me.FromDatabaseToolStripMenuItem.Text = "From Database"
         '
         'ImportFromExternalIDsToolStripMenuItem
@@ -436,6 +437,19 @@ Partial Class Form1
         Me.ByFileToolStripMenuItem.Size = New System.Drawing.Size(140, 26)
         Me.ByFileToolStripMenuItem.Text = "By File"
         '
+        'ExtraToolStripMenuItem
+        '
+        Me.ExtraToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.TableToolStripMenuItem, Me.SplitByHitToolStripMenuItem})
+        Me.ExtraToolStripMenuItem.Name = "ExtraToolStripMenuItem"
+        Me.ExtraToolStripMenuItem.Size = New System.Drawing.Size(54, 24)
+        Me.ExtraToolStripMenuItem.Text = "Extra"
+        '
+        'TableToolStripMenuItem
+        '
+        Me.TableToolStripMenuItem.Name = "TableToolStripMenuItem"
+        Me.TableToolStripMenuItem.Size = New System.Drawing.Size(216, 26)
+        Me.TableToolStripMenuItem.Text = "5Table"
+        '
         'SplitContainer1
         '
         Me.SplitContainer1.Dock = System.Windows.Forms.DockStyle.Fill
@@ -455,18 +469,6 @@ Partial Class Form1
         Me.SplitContainer1.Size = New System.Drawing.Size(1400, 622)
         Me.SplitContainer1.SplitterDistance = 465
         Me.SplitContainer1.TabIndex = 1
-        '
-        'Tblb1
-        '
-        Me.Tblb1.DisplayMember = Nothing
-        Me.Tblb1.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Tblb1.Location = New System.Drawing.Point(0, 0)
-        Me.Tblb1.Name = "Tblb1"
-        Me.Tblb1.Original = CType(resources.GetObject("Tblb1.Original"), System.Collections.Generic.List(Of Object))
-        Me.Tblb1.Selected = CType(resources.GetObject("Tblb1.Selected"), System.Collections.Generic.List(Of Object))
-        Me.Tblb1.SelItem = Nothing
-        Me.Tblb1.Size = New System.Drawing.Size(465, 622)
-        Me.Tblb1.TabIndex = 0
         '
         'tbAlignment
         '
@@ -501,6 +503,18 @@ Partial Class Form1
         Me.dgv1.Size = New System.Drawing.Size(725, 353)
         Me.dgv1.TabIndex = 1
         '
+        'Tblb1
+        '
+        Me.Tblb1.DisplayMember = Nothing
+        Me.Tblb1.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Tblb1.Location = New System.Drawing.Point(0, 0)
+        Me.Tblb1.Name = "Tblb1"
+        Me.Tblb1.Original = CType(resources.GetObject("Tblb1.Original"), System.Collections.Generic.List(Of Object))
+        Me.Tblb1.Selected = CType(resources.GetObject("Tblb1.Selected"), System.Collections.Generic.List(Of Object))
+        Me.Tblb1.SelItem = Nothing
+        Me.Tblb1.Size = New System.Drawing.Size(465, 622)
+        Me.Tblb1.TabIndex = 0
+        '
         'Tblb2
         '
         Me.Tblb2.DisplayMember = Nothing
@@ -513,18 +527,11 @@ Partial Class Form1
         Me.Tblb2.Size = New System.Drawing.Size(206, 622)
         Me.Tblb2.TabIndex = 0
         '
-        'ExtraToolStripMenuItem
+        'SplitByHitToolStripMenuItem
         '
-        Me.ExtraToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.TableToolStripMenuItem})
-        Me.ExtraToolStripMenuItem.Name = "ExtraToolStripMenuItem"
-        Me.ExtraToolStripMenuItem.Size = New System.Drawing.Size(54, 24)
-        Me.ExtraToolStripMenuItem.Text = "Extra"
-        '
-        'TableToolStripMenuItem
-        '
-        Me.TableToolStripMenuItem.Name = "TableToolStripMenuItem"
-        Me.TableToolStripMenuItem.Size = New System.Drawing.Size(216, 26)
-        Me.TableToolStripMenuItem.Text = "5Table"
+        Me.SplitByHitToolStripMenuItem.Name = "SplitByHitToolStripMenuItem"
+        Me.SplitByHitToolStripMenuItem.Size = New System.Drawing.Size(216, 26)
+        Me.SplitByHitToolStripMenuItem.Text = "Split By Hit"
         '
         'Form1
         '
@@ -612,4 +619,5 @@ Partial Class Form1
     Friend WithEvents FromGenBanksCDSToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents ExtraToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents TableToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents SplitByHitToolStripMenuItem As ToolStripMenuItem
 End Class
