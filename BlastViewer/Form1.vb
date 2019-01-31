@@ -11,6 +11,7 @@ Imports System.Text
 Imports Bio.IO.GenBank
 Imports Szunyi.Features.Extensions
 Imports Szunyi.Common.Extensions
+Imports Szunyi.BLAST.Export
 
 'Imports System.Linq.Dynamic
 
@@ -28,8 +29,9 @@ Public Class Form1
     Dim OriginalBlastSearchRecords As New List(Of OwnBlastRecord)
     Dim ClonedAndFilteredBlastSearchRecords As New List(Of OwnBlastRecord)
     Dim OpenedFiles As New List(Of FileInfo)
-
-    Private DisplayMemberofHit As String = "Accession"
+    Dim QueryFiles As New List(Of FileInfo)
+    Dim QuerySequences As New List(Of Bio.ISequence)
+    Private DisplayMemberofHit As String = "ID"
     Private DisplayMemberofRecord As String = "IterationQueryDefinition"
     Private DisplayMembersAll As New List(Of String)
     Private currAll As IQueryable
@@ -39,7 +41,7 @@ Public Class Form1
     End Sub
 
     Private Sub ImportCompressedToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ImportCompressedToolStripMenuItem.Click
-        Dim Files = Szunyi.IO.Pick_Up.Files(Szunyi.IO.File_Extensions.Blast, "Select Blast Result", New DirectoryInfo(My.Settings.Result)).ToList
+        Dim Files = Szunyi.IO.Pick_Up.Files(Szunyi.IO.File_Extensions.BlastAll, "Select Blast Result", New DirectoryInfo(My.Settings.Result)).ToList
         Dim log As System.Text.StringBuilder
         OpenedFiles = Files
         ClonedAndFilteredBlastSearchRecords.Clear()
@@ -222,12 +224,15 @@ Public Class Form1
             My.Settings.Fasta = My.Settings.DataPath & "\Fasta\"
             My.Settings.Filter = My.Settings.DataPath & "\Filter\"
             My.Settings.Tax = My.Settings.DataPath & "\Tax\"
+            My.Settings.Export = My.Settings.DataPath & "\Export"
             System.IO.Directory.CreateDirectory(My.Settings.DataPath)
             System.IO.Directory.CreateDirectory(My.Settings.Db)
             System.IO.Directory.CreateDirectory(My.Settings.Result)
             System.IO.Directory.CreateDirectory(My.Settings.Fasta)
             System.IO.Directory.CreateDirectory(My.Settings.Filter)
             System.IO.Directory.CreateDirectory(My.Settings.Tax)
+            System.IO.Directory.CreateDirectory(My.Settings.Export)
+
             My.Settings.Save()
         End If
     End Sub
@@ -267,7 +272,7 @@ Public Class Form1
         Dim wFIles As New List(Of FileInfo)
         For Each File In Files
             Dim fDir As New DirectoryInfo(My.Settings.Fasta)
-            Dim nFIle = Szunyi.IO.Rename.Change_Directory(File, fDir)
+            Dim nFIle = File.Change_Directory(fDir)
             If nFIle.FullName <> File.FullName Then
                 If nFIle.Exists = True Then
                     MsgBox("File is already in database. We used the stored one")
@@ -301,15 +306,15 @@ Public Class Form1
         If Title = "" Then Exit Sub
 
         Dim str As New System.Text.StringBuilder
-        Using Tax_Writter As New Szunyi.IO.Export.Text_Exporter(New FileInfo(My.Settings.Tax & Title & ".txt"))
-            Using x_NA As New Szunyi.IO.Export.Fasta_Exporter(New FileInfo(My.Settings.Fasta & Title & "_NA.fa"))
-                Using x_AA As New Szunyi.IO.Export.Fasta_Exporter(New FileInfo(My.Settings.Fasta & Title & "_AA.fa"))
+        Using Tax_Writter As New Szunyi.IO.Exporters.Text_Exporter(New FileInfo(My.Settings.Tax & Title & ".txt"))
+            Using x_NA As New Szunyi.IO.Exporters.Fasta_Exporter(New FileInfo(My.Settings.Fasta & Title & "_NA.fa"))
+                Using x_AA As New Szunyi.IO.Exporters.Fasta_Exporter(New FileInfo(My.Settings.Fasta & Title & "_AA.fa"))
                     Dim Index As Integer = 0
                     For Each File In Files
-                        For Each Seq In Szunyi.IO.Import.Sequences.Parse(Files)
+                        For Each Seq In Szunyi.IO.Import.Parse_Sequence(Files)
                             Dim ls As New List(Of String) ' FileFullName,CommonName,Strain,Accession (SeqID),Length
                             ls.Add(File.FullName)
-                            ls.Add(Seq.taxid)
+                            ls.Add(Seq.TaxId)
                             ls.Add(Seq.CommonName)
                             ls.Add(Seq.Strain)
                             ls.Add(Seq.Accesion)
@@ -343,9 +348,9 @@ Public Class Form1
         If Title = "" Then Exit Sub
         Dim nFile As New FileInfo(My.Settings.Fasta & Title & ".fa")
         Dim str As New System.Text.StringBuilder
-        Using x As New Szunyi.IO.Export.Fasta_Exporter(nFile)
+        Using x As New Szunyi.IO.Exporters.Fasta_Exporter(nFile)
             Dim isNucle As Boolean = True
-            For Each Seq In Szunyi.IO.Import.Sequences.Parse(Files)
+            For Each Seq In Szunyi.IO.Import.Parse_Sequence(Files)
                 x.Write(Seq)
                 str.Append(Seq.ID).Append(vbTab).Append(Seq.TaxId).AppendLine()
                 Dim MolType = Seq.MoleculeType
@@ -354,7 +359,7 @@ Public Class Form1
         End Using
         If str.Length > 0 Then str.Length -= 2
         Dim TaxFIle As New FileInfo(My.Settings.Tax & Title)
-        Szunyi.IO.Export.Text(str.ToString, TaxFIle)
+        Szunyi.IO.Export_Text(str.ToString, TaxFIle)
         Dim x1 As New Szunyi.BLAST.Console.CreateDatabase(nFile,
                                                            True,
                                                            New DirectoryInfo(My.Settings.BlastPath),
@@ -368,16 +373,16 @@ Public Class Form1
     Private Sub FromGenBankToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles FromGenBankToolStripMenuItem.Click
         Dim Files = Szunyi.IO.Pick_Up.GenBank
         For Each File In Files
-            Dim nFIle = Szunyi.IO.Rename.Change_Directory(File, New DirectoryInfo(My.Settings.Fasta))
-            nFIle = Szunyi.IO.Rename.ChangeExtension(nFIle, Szunyi.IO.File_Extension.fasta)
+            Dim nFIle = File.Change_Directory(New DirectoryInfo(My.Settings.Fasta))
+            nFIle = nFIle.ChangeExtension(Szunyi.IO.File_Extension.fasta)
 
 
-            Dim Seqs = Szunyi.IO.Import.Sequences.Parse(File).ToList
+            Dim Seqs = Szunyi.IO.Import.Parse_Sequence(File).ToList
 
             Dim Common_Name = (Seqs.First).CommonName.Replace(" ", "_")
             Dim TaxID = Seqs.First.TaxId
-            Dim nnFile = Szunyi.IO.Rename.Append_First(nFIle, TaxID & "_" & Common_Name)
-            Szunyi.IO.Export.Fasta(Seqs, nnFile)
+            Dim nnFile = nFIle.Append_First(TaxID & "_" & Common_Name)
+            Szunyi.IO.Export_FASTA(Seqs, nnFile)
             Dim MolType = Seqs.First.MoleculeType
             Dim isNucle As Boolean = True
             If MolType = Bio.IO.GenBank.MoleculeType.Protein Then isNucle = False
@@ -457,7 +462,7 @@ Public Class Form1
 #End Region
     Private Function GetDbFiles(IsDNA As Boolean) As List(Of FileInfo)
         Dim res As New List(Of FileInfo)
-        Dim files = Szunyi.IO.Get_Files.All(New DirectoryInfo(My.Settings.Db))
+        Dim files = New DirectoryInfo(My.Settings.Db).GetFiles.ToList
 
         If IsDNA = True Then
             Dim t = From x In files Where x.Extension = ".nhr"
@@ -567,6 +572,15 @@ Public Class Form1
     End Sub
 
     Private Sub QueryAndHitToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles QueryAndHitToolStripMenuItem.Click
+        Dim AllSeqs As New List(Of Bio.ISequence)
+        For Each Item In Me.ClonedAndFilteredBlastSearchRecords.GroupBy_Database
+            Dim DB_File As New FileInfo(Item.First.DB_File_Name)
+            Dim Db_Name = DB_File.Name
+
+            Dim seqs = Szunyi.BLAST.Console.Retrive.GetSeqsFromBlastDatabase(DB_File, Item.Unique_HitIDs, New StringBuilder, My.Settings.BlastPath)
+            AllSeqs.AddRange(seqs)
+        Next
+        Clipboard.SetText(AllSeqs.ConvertTo_String.GetText(vbCrLf))
 
     End Sub
 
@@ -692,10 +706,10 @@ Public Class Form1
                 For Each Item In ForRetrive
                     Dim Seqs = Szunyi.BLAST.Console.Retrive.GetSeqsFromBlastDatabase(New FileInfo(Item.Key), Item.Value, log, My.Settings.BlastPath)
                     Dim nFile As New FileInfo(Item.Key)
-                    Dim NA_File = Szunyi.IO.Rename.Append_Before_Extension(nFile, "_NA")
-                    Dim AA_File = Szunyi.IO.Rename.Append_Before_Extension(nFile, "_AA")
-                    Szunyi.IO.Export.Fasta(Seqs, New FileInfo(cDir.FullName & "\" & NA_File.Name))
-                    Szunyi.IO.Export.Fasta(Seqs.TranslateFull(True), AA_File)
+                    Dim NA_File = nFile.Append_Before_Extension("_NA")
+                    Dim AA_File = nFile.Append_Before_Extension("_AA")
+                    Szunyi.IO.Export_FASTA(Seqs, New FileInfo(cDir.FullName & "\" & NA_File.Name))
+                    Szunyi.IO.Export_FASTA(Seqs.TranslateFull(True), AA_File)
                     For i1 = 0 To Seqs.Count - 1
                         If IsNothing(ByCDS_NA(i1)) = True Then
                             ByCDS_NA(i1) = New List(Of Bio.ISequence)
@@ -707,8 +721,8 @@ Public Class Form1
                     Next
                 Next
                 For i1 = 0 To ByCDS_NA.Count - 1
-                    Szunyi.IO.Export.Fasta(ByCDS_NA(i1), New FileInfo(cDir.FullName & "\" & i1 & "_NA.fa"))
-                    Szunyi.IO.Export.Fasta(ByCDS_AA(i1), New FileInfo(cDir.FullName & "\" & i1 & "_AA.fa"))
+                    Szunyi.IO.Export_FASTA(ByCDS_NA(i1), New FileInfo(cDir.FullName & "\" & i1 & "_NA.fa"))
+                    Szunyi.IO.Export_FASTA(ByCDS_AA(i1), New FileInfo(cDir.FullName & "\" & i1 & "_AA.fa"))
                 Next
             End If
 
@@ -718,104 +732,8 @@ Public Class Form1
 
 
     End Sub
-    ''' <summary>
-    ''' Pure
-    ''' </summary>
-    ''' <param name="sender"></param>
-    ''' <param name="e"></param>
-    Private Sub FromFilesToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles FromFilesToolStripMenuItem.Click
-        Me.OpenedFiles = Szunyi.IO.Pick_Up.Files(Szunyi.IO.File_Extensions.Blast, "Select Blast Result", New DirectoryInfo(My.Settings.Result)).ToList
-        Dim All_Records = Import_Records()
-        Me.ClonedAndFilteredBlastSearchRecords = Group_Records(All_Records)
-        Me.OriginalBlastSearchRecords = ClonedAndFilteredBlastSearchRecords.Clone
-        Tblb1.SetIt(ClonedAndFilteredBlastSearchRecords, DisplayMemberofRecord)
-
-    End Sub
 
 
-
-    ''' <summary>
-    ''' Pure
-    ''' </summary>
-    ''' <param name="sender"></param>
-    ''' <param name="e"></param>
-    Private Sub FromDatabaseToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles FromDatabaseToolStripMenuItem.Click
-        Me.OpenedFiles = Get_DatabaseFiles()
-        Dim All_Records = Import_Records()
-        Me.ClonedAndFilteredBlastSearchRecords = Group_Records(All_Records)
-        Me.OriginalBlastSearchRecords = ClonedAndFilteredBlastSearchRecords.Clone
-        Tblb1.SetIt(ClonedAndFilteredBlastSearchRecords, DisplayMemberofRecord)
-    End Sub
-    ''' <summary>
-    ''' With External IDs
-    ''' </summary>
-    ''' <param name="sender"></param>
-    ''' <param name="e"></param>
-    Private Sub FromFilesToolStripMenuItem1_Click(sender As Object, e As EventArgs) Handles FromFilesToolStripMenuItem1.Click
-        Me.OpenedFiles = Szunyi.IO.Pick_Up.Files(Szunyi.IO.File_Extensions.Blast, "Select Blast Result", New DirectoryInfo(My.Settings.Result)).ToList
-        Dim All_Records = Import_Records()
-        Me.ClonedAndFilteredBlastSearchRecords = Group_Records(All_Records)
-        Me.OriginalBlastSearchRecords = ClonedAndFilteredBlastSearchRecords.Clone
-        Tblb1.SetIt(ClonedAndFilteredBlastSearchRecords, DisplayMemberofRecord)
-    End Sub
-    ''' <summary>
-    ''' With External IDs
-    ''' </summary>
-    ''' <param name="sender"></param>
-    ''' <param name="e"></param>
-    Private Sub FromDatabaseToolStripMenuItem1_Click(sender As Object, e As EventArgs) Handles FromDatabaseToolStripMenuItem1.Click
-        Me.OpenedFiles = Get_DatabaseFiles()
-        Dim All_Records = Import_Records()
-        Me.ClonedAndFilteredBlastSearchRecords = Group_Records(All_Records)
-        Me.OriginalBlastSearchRecords = ClonedAndFilteredBlastSearchRecords.Clone
-        Tblb1.SetIt(ClonedAndFilteredBlastSearchRecords, DisplayMemberofRecord)
-    End Sub
-    Private Function Get_DatabaseFiles() As List(Of FileInfo)
-        Dim All_Result_Files = Szunyi.IO.Get_Files.All(New DirectoryInfo(My.Settings.Result))
-        Dim All_Result_Files_Names = From x1 In All_Result_Files Select x1.Name
-        Dim x As New Szunyi.IO.CheckBoxForStringsFull(All_Result_Files.ToList, -1)
-        If x.ShowDialog = DialogResult.OK Then
-            Return x.SelectedFiles
-        Else
-            Return New List(Of FileInfo)
-        End If
-    End Function
-    Private Function Import_Records() As List(Of OwnBlastRecord)
-        Dim All_record As New List(Of OwnBlastRecord)
-        ClonedAndFilteredBlastSearchRecords.Clear()
-        ByFiles.Clear()
-        Dim log As New System.Text.StringBuilder
-        For Each File In OpenedFiles
-            Dim Records = Szunyi.BLAST.Import.From_File(File, log).ToList
-            ByFiles.Add(Records)
-            All_record.AddRange(Records)
-        Next
-        Return All_record
-    End Function
-    Private Function Group_Records(all_Records As List(Of OwnBlastRecord)) As List(Of OwnBlastRecord)
-        Dim res As New List(Of OwnBlastRecord)
-
-        Dim gr = From x2 In all_Records Group By x2.IterationQueryDefinition Into Group
-
-        For Each g In gr
-            Dim t As OwnBlastRecord
-            Dim cHits As New List(Of Bio.Web.Blast.Hit)
-            For Each item In g.Group
-                If item Is g.Group.First Then
-                    t = item.Clone
-                Else
-                    t.OwnHits.AddRange(item.OwnHits)
-                    cHits.AddRange(item.Hits)
-                End If
-            Next
-            For Each c In cHits
-                t.Hits.Add(c)
-            Next
-            t.IterationQueryDefinition = g.IterationQueryDefinition
-            res.Add(t)
-        Next
-        Return res
-    End Function
 
     Private Sub dgv1_RowEnter(sender As Object, e As DataGridViewCellEventArgs) Handles dgv1.RowEnter
         Dim alf As Integer = 43
@@ -874,19 +792,12 @@ Public Class Form1
 
     End Sub
     Private Sub DrawTextBox(hsp As Object, FontWidth As Double)
-        Dim NofCharPerLine As Integer = (Me.tbAlignment.Width) \ FontWidth
+        Dim NofCharPerLine As Integer = (Me.tbAlignment.Width) \ FontWidth - 2
 
         Dim myFont As Font = tbAlignment.Font
         Dim graphics As Graphics = tbAlignment.CreateGraphics
         Dim s As New StringBuilder
-        Do
-            s.Append("a")
-            Dim Fs = graphics.MeasureString(s.ToString, myFont)
-            If Fs.Width > tbAlignment.Width - 10 Then
-                NofCharPerLine = s.Length - 2
-                Exit Do
-            End If
-        Loop
+
 
         Dim str As New StringBuilder
         If IsNothing(hsp.QuerySequence) = True Then Exit Sub
@@ -901,7 +812,7 @@ Public Class Form1
 
     Private Sub TableToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles TableToolStripMenuItem.Click
         Dim Files = Szunyi.IO.Pick_Up.GenBank.ToList
-        Dim Seqs = Szunyi.IO.Import.Sequences.Parse(Files).ToList
+        Dim Seqs = Szunyi.IO.Import.Parse_Sequence(Files).ToList
         If Seqs.Count = 0 Then Exit Sub
         Dim str As New System.Text.StringBuilder
         For Each Seq In Seqs
@@ -917,7 +828,7 @@ Public Class Form1
         Next
             str.Length -= 2
         Clipboard.SetText(str.ToString)
-        Szunyi.IO.Export.Text(str.ToString)
+        Szunyi.IO.Export_Text(str.ToString)
     End Sub
 
     Private Sub SplitByHitToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SplitByHitToolStripMenuItem.Click
@@ -928,7 +839,7 @@ Public Class Form1
         For Each File In Get_DatabaseFiles()
             Dim Exps As New Dictionary(Of String, List(Of Bio.ISequence))
             Dim OriginalFastaFile = File.QueryFastaFile(My.Settings.Fasta)
-            Dim Seqs = Szunyi.IO.Import.Sequences.Parse(OriginalFastaFile).ToList
+            Dim Seqs = Szunyi.IO.Import.Parse_Sequence(OriginalFastaFile).ToList
             Dim c As New Szunyi.Sequences.Sorters.ByID
             Seqs.Sort(c)
 
@@ -951,17 +862,88 @@ Public Class Form1
                     AllSeqs.AddRange(Item.Value)
                     Dim OneCopy = Item.Value.OneCopyBy_ID
                     Dim Duplicates = Item.Value.DuplicatesBy_ID
-                    Szunyi.IO.Export.Fasta(OneCopy, New FileInfo(OutDir.FullName & "\" & File.Name & "," & Item.Key & "_Unique.fa"))
-                    Szunyi.IO.Export.Fasta(Duplicates.Firsts, New FileInfo(OutDir.FullName & "\" & File.Name & "," & Item.Key & "_Duplicate.fa"))
+                    Szunyi.IO.Export_FASTA(OneCopy, New FileInfo(OutDir.FullName & "\" & File.Name & "," & Item.Key & "_Unique.fa"))
+                    Szunyi.IO.Export_FASTA(Duplicates.Firsts, New FileInfo(OutDir.FullName & "\" & File.Name & "," & Item.Key & "_Duplicate.fa"))
                 Next
                 AllSeqs.Sort(c)
                 Dim NotFounded = Seqs.Distinct_ByID(AllSeqs)
-                Szunyi.IO.Export.Fasta(NotFounded, New FileInfo(OutDir.FullName & "\" & File.Name & "_NotFounded.fa"))
+                Szunyi.IO.Export_FASTA(NotFounded, New FileInfo(OutDir.FullName & "\" & File.Name & "_NotFounded.fa"))
             End If
 
         Next
 
     End Sub
 
+#End Region
+#Region "Import"
+    Private Sub Import()
+        Dim F = (New DirectoryInfo(My.Settings.Db).GetFiles.woExtension.ShortName.Distinct.ToList)
+        Me.QueryFiles = (New DirectoryInfo(My.Settings.Fasta).GetFiles.ToList)
+
+        Dim ValidQueryFiles = QueryFiles.StartWiths(F)
+        Me.QuerySequences = ValidQueryFiles.Parse_Sequence.ToList
+        Dim All_Records = Import_Records().ToList
+        Me.ClonedAndFilteredBlastSearchRecords = All_Records.ReGroup_Records
+        Me.OriginalBlastSearchRecords = ClonedAndFilteredBlastSearchRecords.Clone
+        Tblb1.SetIt(ClonedAndFilteredBlastSearchRecords, DisplayMemberofRecord)
+    End Sub
+    ''' <summary>
+    ''' Pure
+    ''' </summary>
+    ''' <param name="sender"></param>
+    ''' <param name="e"></param>
+    Private Sub FromFilesToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles FromFilesToolStripMenuItem.Click
+        Me.OpenedFiles = Szunyi.IO.Pick_Up.Files(Szunyi.IO.File_Extensions.BlastAll, "Select Blast Result", New DirectoryInfo(My.Settings.Result)).ToList
+        Import()
+    End Sub
+    ''' <summary>
+    ''' Pure
+    ''' </summary>
+    ''' <param name="sender"></param>
+    ''' <param name="e"></param>
+    Private Sub FromDatabaseToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles FromDatabaseToolStripMenuItem.Click
+        Me.OpenedFiles = Get_DatabaseFiles()
+        Import()
+    End Sub
+    ''' <summary>
+    ''' With External IDs
+    ''' </summary>
+    ''' <param name="sender"></param>
+    ''' <param name="e"></param>
+    Private Sub FromFilesToolStripMenuItem1_Click(sender As Object, e As EventArgs) Handles FromFilesToolStripMenuItem1.Click
+        Me.OpenedFiles = Szunyi.IO.Pick_Up.Files(Szunyi.IO.File_Extensions.BlastAll, "Select Blast Result", New DirectoryInfo(My.Settings.Result)).ToList
+       Import 
+    End Sub
+    ''' <summary>
+    ''' With External IDs
+    ''' </summary>
+    ''' <param name="sender"></param>
+    ''' <param name="e"></param>
+    Private Sub FromDatabaseToolStripMenuItem1_Click(sender As Object, e As EventArgs) Handles FromDatabaseToolStripMenuItem1.Click
+        Me.OpenedFiles = Get_DatabaseFiles()
+
+    End Sub
+    Private Function Get_DatabaseFiles() As List(Of FileInfo)
+        Dim All_Result_Files = New DirectoryInfo(My.Settings.Result).GetFiles.ToList
+        Dim All_Result_Files_Names = From x1 In All_Result_Files Select x1.Name
+        Dim x As New Szunyi.IO.CheckBoxForStringsFull(All_Result_Files.ToList, -1)
+        If x.ShowDialog = DialogResult.OK Then
+            Return x.SelectedFiles
+        Else
+            Return New List(Of FileInfo)
+        End If
+    End Function
+    Private Function Import_Records() As List(Of OwnBlastRecord)
+        Dim All_record As New List(Of OwnBlastRecord)
+        ClonedAndFilteredBlastSearchRecords.Clear()
+        ByFiles.Clear()
+        Dim log As New System.Text.StringBuilder
+        For Each File In OpenedFiles
+            Dim Records = Szunyi.BLAST.Import.From_File(File, log).ToList
+            ByFiles.Add(Records)
+            All_record.AddRange(Records)
+        Next
+        Return All_record
+    End Function
 #End Region
 End Class

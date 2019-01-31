@@ -4,7 +4,7 @@ Imports org.mariuszgromada.math.mxparser
 Imports System.Text.RegularExpressions
 Imports Szunyi.Math
 Imports Szunyi.Common.Extensions
-
+Imports Szunyi.IO
 
 Public Class MathEvalution
 
@@ -108,12 +108,12 @@ Public Class MathEvalution
             Case "Load"
                 Dim File = Szunyi.IO.Pick_Up.File(Szunyi.IO.File_Extensions.Filter, "Select Filter File", New System.IO.DirectoryInfo(My.Settings.Filter))
                 If IsNothing(File) = False Then
-                    RichTextBox1.Text = Szunyi.IO.Import.Text.Full(File)
+                    RichTextBox1.Text = File.Read_All
                 End If
             Case "Save"
-                Dim File = Szunyi.IO.Export.File_To_Save(Szunyi.IO.File_Extensions.Filter, New System.IO.DirectoryInfo(My.Settings.Filter))
+                Dim File = Szunyi.IO.Pick_Up.File(Szunyi.IO.File_Extensions.Filter)
                 If IsNothing(File) = False Then
-                    Szunyi.IO.Export.Text(RichTextBox1.Text, File)
+                    Szunyi.IO.Export_Text(RichTextBox1.Text, File)
                 End If
             Case "Cancel"
                 Me.DialogResult = DialogResult.Cancel
@@ -159,7 +159,7 @@ Public Class MathEvalution
     Private Iterator Function Calculate(arguments As Dictionary(Of String, Own_Argument)) As IEnumerable(Of Double)
         Dim tmp = RichTextBox1.Text.Replace("(", " ( ").Replace(")", " ) ")
         Dim s = Split(tmp, " ")
-        Dim txt = s.gettext(" ").Trim()
+        Dim txt = s.GetText(" ").Trim()
         Dim x As New Expression(txt)
         For Each a In arguments
             x.addArguments(a.Value.Arg)
@@ -238,7 +238,7 @@ Public Class MathEvalution
         RichTextBox1.SelectionStart = RichTextBox1.Text.Length
     End Sub
 
-    Private Iterator Function Get_Matches_Aggregates() As IEnumerable(Of match)
+    Private Iterator Function Get_Matches_Aggregates() As IEnumerable(Of Match)
 
 
         For Each e In RichTextBox1.Text.Matches("Average\[[A-Z\s_]{1,45}\]")
