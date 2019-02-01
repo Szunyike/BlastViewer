@@ -564,11 +564,14 @@ Public Class Form1
 
 #Region "Export"
     Private Sub QueryToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles QueryToolStripMenuItem.Click
-        'Export.Query_Sequences(Me.ClonedAndFilteredBlastSearchRecords, Me.OpenedFiles)
+        Dim Query_IDs = Me.ClonedAndFilteredBlastSearchRecords.Unique_QueryIDs
+        Dim kj As Int16 = 54
     End Sub
 
     Private Sub HitToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles HitToolStripMenuItem.Click
-
+        Dim Query_IDs = Me.ClonedAndFilteredBlastSearchRecords.Unique_QueryIDs
+        Me.QuerySequences.Get_Sequences(Query_IDs)
+        Dim kj As Int16 = 54
     End Sub
 
     Private Sub QueryAndHitToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles QueryAndHitToolStripMenuItem.Click
@@ -879,9 +882,11 @@ Public Class Form1
     Private Sub Import()
         Dim F = (New DirectoryInfo(My.Settings.Db).GetFiles.woExtension.ShortName.Distinct.ToList)
         Me.QueryFiles = (New DirectoryInfo(My.Settings.Fasta).GetFiles.ToList)
-
-        Dim ValidQueryFiles = QueryFiles.StartWiths(F)
-        Me.QuerySequences = ValidQueryFiles.Parse_Sequence.ToList
+        Dim F1 = Me.OpenedFiles.woExtension.ShortName.Distinct.ToList
+        Dim ValidQueryFiles = Me.OpenedFiles.StartWiths(F).Distinct.ToList
+        Dim wCorrectDirs = ValidQueryFiles.Change_Directory(New DirectoryInfo(My.Settings.Fasta)).Unique.ToList
+        Me.QuerySequences = wCorrectDirs.Parse_Sequence.ToList
+        Me.QuerySequences.Sort(New Szunyi.Sequences.Sorters.ByID)
         Dim All_Records = Import_Records().ToList
         Me.ClonedAndFilteredBlastSearchRecords = All_Records.ReGroup_Records
         Me.OriginalBlastSearchRecords = ClonedAndFilteredBlastSearchRecords.Clone
